@@ -1,0 +1,28 @@
+{
+    "id": "some-id",
+    "occurrenceTime": "2017-07-21T17:32:28Z",
+    "summary": "Sample Event: High CPU Usage Detected",
+    "severity": 5,
+    "type": {
+        "eventType": "problem",
+        "classification": "Utilization",
+        "condition": "98%"
+    },
+    "sender": {
+        "type": "grpc-connector",
+        "name": "Connector Event Template",
+        "sourceId": "connector-id"
+    },
+    "resource": {
+        "type": "host",
+        "hostname": "my-node",
+        "ipAddress": "89.21.11.1"
+    },
+    "expirySeconds": 500,
+    "links": [
+        {"url": "www.ibm.com", "description": "IBM website", "linkType": "webpage"}
+    ],
+    "details": {
+        "randomInfo": "safe to ignore this event"
+    }
+}

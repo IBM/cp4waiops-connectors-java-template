@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: connector-event-template
+  labels:
+    app: connector-event-template
+spec:
+  endpoints:
+  - port: metrics
+    path: /h/metrics
+    scheme: https
+    tlsConfig:
+      serverName: "$(SERVICE_NAME).$(SERVICE_NAMESPACE).svc"
+      ca:
+        configMap:
+          name: aiopsedge-openshift-ca-cert
+          key: service-ca.crt
+          optional: false
+  selector:
+    matchLabels:
+      app: connector-event-template
+      instance: connector

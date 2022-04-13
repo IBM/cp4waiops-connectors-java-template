@@ -1,0 +1,20 @@
+<server>
+  <!-- These are the production settings used in the docker container -->
+  <featureManager>
+    <feature>servlet-4.0</feature>
+    <feature>mpConfig-2.0</feature>
+  </featureManager>
+
+  <httpEndpoint id="defaultHttpEndpoint"
+                host="*"
+                httpPort="9080"
+                httpsPort="9443"/>
+
+  <webApplication location="connector-event-template.war" contextRoot="/" />
+
+  <!-- info level logging for production -->
+  <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="info" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=info" />
+  <!-- trace logging for debugging, do NOT ship with this enabled -->
+  <!-- <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="info" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=all" /> -->
+
+</server>
