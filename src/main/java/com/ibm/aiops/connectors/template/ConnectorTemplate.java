@@ -117,24 +117,10 @@ public class ConnectorTemplate extends ConnectorBase {
                 if (_configurationUpdated.get()) {
                     emitStatus(ConnectorStatus.Phase.Running, Duration.ofMinutes(5));
                 }
+
                 Configuration config = _configuration.get();
-                synchronized (this._threads) {
-                    if (config.getEnableCPUHeavyWorkload()) {
-                        for (int i = this._threads.size(); i < config.getNumCPUWorkloadThreads(); i++) {
-                            Future<?> task = _executor.submit(() -> checkIfRandomNumbersArePrime());
-                            _threads.add(task);
-                        }
-                        while (this._threads.size() > config.getNumCPUWorkloadThreads() && !this._threads.isEmpty()) {
-                            _threads.get(this._threads.size()-1).cancel(true);
-                            _threads.remove(this._threads.size()-1);
-                        }
-                    } else if (_executor != null) {
-                        while (!this._threads.isEmpty()) {
-                            _threads.get(this._threads.size()-1).cancel(true);
-                            _threads.remove(this._threads.size()-1);
-                        }
-                    }
-                }
+                updateWorkload(config);
+
                 // Some background task that executes periodically
                 if (System.nanoTime() - lastRan / 1000000000 > 30) {
                     checkCPUThreshold(config);
@@ -169,6 +155,7 @@ public class ConnectorTemplate extends ConnectorBase {
             EventLifeCycleEvent elcEvent = newCPUThresholdLifeCycleEvent(config, hostname, ipAddress, currentUsage);
             CloudEvent ce = CloudEventBuilder.v1().withId(elcEvent.getId()).withSource(SELF_SOURCE)
                     .withType(THRESHOLD_BREACHED_CE_TYPE)
+                    .withExtension("tenantid", "cfd95b7e-3bc7-4006-a4a8-a73a79c71255")
                     .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
                     .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
                     .withData("application/json", elcEvent.toJSON().getBytes(StandardCharsets.UTF_8)).build();
@@ -262,6 +249,26 @@ public class ConnectorTemplate extends ConnectorBase {
             _errorsSeen.increment();
         }
         return samples;
+    }
+
+    protected void updateWorkload(Configuration config) {
+        synchronized (this._threads) {
+            if (config.getEnableCPUHeavyWorkload()) {
+                for (int i = this._threads.size(); i < config.getNumCPUWorkloadThreads(); i++) {
+                    Future<?> task = _executor.submit(() -> checkIfRandomNumbersArePrime());
+                    _threads.add(task);
+                }
+                while (this._threads.size() > config.getNumCPUWorkloadThreads() && !this._threads.isEmpty()) {
+                    _threads.get(this._threads.size()-1).cancel(true);
+                    _threads.remove(this._threads.size()-1);
+                }
+            } else if (_executor != null) {
+                while (!this._threads.isEmpty()) {
+                    _threads.get(this._threads.size()-1).cancel(true);
+                    _threads.remove(this._threads.size()-1);
+                }
+            }
+        }
     }
 
     protected void checkIfRandomNumbersArePrime() {
