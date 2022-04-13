@@ -35,6 +35,10 @@ spec:
         type: boolean
         description: Starts or stops a cpu intensive task
         default: true
+      numCPUWorkloadThreads:
+        type: integer
+        description: Number of threads to use for cpu intensive task
+        default: 1
     type: object
   uiSchema:
     type: java-grpc-connector-template
@@ -115,6 +119,19 @@ spec:
       labelOn: "{{common.On}}"
       apiMapping: connection_config.enableCPUHeavyWorkload
       formStep: addConnection
+    - id: numCPUWorkloadThreads
+      element: input
+      type: number
+      label: "Number of workload threads"
+      placeholder: "1"
+      min: 1
+      max: 10
+      step: 1
+      defaultValue: 1
+      helperText: "Specify the number of threads to spawn when the cpu heavy workload is enabled."
+      apiMapping: connection_config.numCPUWorkloadThreads
+      formStep: addConnection
+      isRequired: false
     - apiMapping: connection_config.deploymentType
       element: input
       formStep: addConnection

@@ -5,8 +5,17 @@ public class Configuration {
     private int severityLevel = 6;
     private int expirySeconds = 60;
     private boolean enableCPUHeavyWorkload = false;
+    private int numCPUWorkloadThreads = 1;
 
     public Configuration() {
+    }
+
+    public int getNumCPUWorkloadThreads() {
+        return numCPUWorkloadThreads;
+    }
+
+    public void setNumCPUWorkloadThreads(int numCPUWorkloadThreads) {
+        this.numCPUWorkloadThreads = numCPUWorkloadThreads;
     }
 
     public boolean getEnableCPUHeavyWorkload() {

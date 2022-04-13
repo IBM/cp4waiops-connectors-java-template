@@ -6,11 +6,16 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -47,7 +52,8 @@ public class ConnectorTemplate extends ConnectorBase {
     private Counter _compositesFound;
     private Counter _errorsSeen;
 
-    private Thread _busyThread;
+    private ExecutorService _executor;
+    private List<Future<?>> _threads;
 
     /**
      * Instantiates a new ConnectorTemplate
@@ -55,7 +61,8 @@ public class ConnectorTemplate extends ConnectorBase {
     public ConnectorTemplate() {
         _configuration = new AtomicReference<>();
         _configurationUpdated = new AtomicBoolean(false);
-        _busyThread = null;
+        _executor = Executors.newCachedThreadPool();
+        _threads = new ArrayList<>();
     }
 
     @Override
@@ -94,12 +101,7 @@ public class ConnectorTemplate extends ConnectorBase {
     @Override
     public void onTerminate(CloudEvent event) {
         // Cleanup external resources if needed
-        synchronized (this) {
-            if (_busyThread != null) {
-                _busyThread.interrupt();
-                _busyThread = null;
-            }
-        }
+        _executor.shutdownNow();
     }
 
     @Override
@@ -116,14 +118,21 @@ public class ConnectorTemplate extends ConnectorBase {
                     emitStatus(ConnectorStatus.Phase.Running, Duration.ofMinutes(5));
                 }
                 Configuration config = _configuration.get();
-                synchronized (this) {
+                synchronized (this._threads) {
                     if (config.getEnableCPUHeavyWorkload()) {
-                        _busyThread = new Thread(() -> {
-                            checkIfRandomNumbersArePrime();
-                        });
-                    } else if (_busyThread != null) {
-                        _busyThread.interrupt();
-                        _busyThread = null;
+                        for (int i = this._threads.size(); i < config.getNumCPUWorkloadThreads(); i++) {
+                            Future<?> task = _executor.submit(() -> checkIfRandomNumbersArePrime());
+                            _threads.add(task);
+                        }
+                        while (this._threads.size() > config.getNumCPUWorkloadThreads() && !this._threads.isEmpty()) {
+                            _threads.get(this._threads.size()-1).cancel(true);
+                            _threads.remove(this._threads.size()-1);
+                        }
+                    } else if (_executor != null) {
+                        while (!this._threads.isEmpty()) {
+                            _threads.get(this._threads.size()-1).cancel(true);
+                            _threads.remove(this._threads.size()-1);
+                        }
                     }
                 }
                 // Some background task that executes periodically
@@ -160,6 +169,8 @@ public class ConnectorTemplate extends ConnectorBase {
             EventLifeCycleEvent elcEvent = newCPUThresholdLifeCycleEvent(config, hostname, ipAddress, currentUsage);
             CloudEvent ce = CloudEventBuilder.v1().withId(elcEvent.getId()).withSource(SELF_SOURCE)
                     .withType(THRESHOLD_BREACHED_CE_TYPE)
+                    .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
+                    .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
                     .withData("application/json", elcEvent.toJSON().getBytes(StandardCharsets.UTF_8)).build();
             emitCloudEvent(LIFECYCLE_INPUT_EVENTS_TOPIC, null, ce);
         } catch (JsonProcessingException error) {
