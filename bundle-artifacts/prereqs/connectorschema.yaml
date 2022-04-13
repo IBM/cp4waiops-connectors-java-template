@@ -38,7 +38,7 @@ spec:
     type: object
   uiSchema:
     type: java-grpc-connector-template
-    displayName: "Connector Event Template"
+    displayName: "Java gRPC Connector Template"
     iconFileType: png
     categories:
     - "{{connector.common.category.events}}"
@@ -46,7 +46,7 @@ spec:
     isObserver: false
     apiAdaptor: connection
     datasourceType: events
-    sidePanelTitle: "Connector Event Template"
+    sidePanelTitle: "Java gRPC Connector Template"
     sidePanelDescription: "A sample template that submits events to the Connector Lifecycle Event Manager"
     sidePanelInfoHeader: "Information"
     sidePanelInfo:

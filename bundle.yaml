@@ -1,7 +1,7 @@
 apiVersion: connectors.aiops.ibm.com/v1beta1
 kind: BundleManifest
 metadata:
-  name: github
+  name: java-grpc-connector-template
 spec:
   prereqs:
     repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
@@ -10,7 +10,7 @@ spec:
       name: test-utilities-github-token
     components:
       - name: deployment
-        path: /bundles/connectors/github/prereqs
+        path: /bundle-artifacts/prereqs
         type: kustomize
   instanced:
     repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
@@ -19,5 +19,5 @@ spec:
       name: test-utilities-github-token
     components:
       - name: connector
-        path: /bundles/connectors/github/connector
+        path: /bundle-artifacts/connector
         type: kustomize
