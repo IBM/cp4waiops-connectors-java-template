@@ -20,14 +20,14 @@ vars:
   - name: SERVICE_NAME
     objref:
       kind: Service
-      name: java-grpc-connector-template
+      name: java-grpc-conn-template
       apiVersion: v1
     fieldref:
       fieldpath: metadata.name
   - name: SERVICE_NAMESPACE
     objref:
       kind: Service
-      name: java-grpc-connector-template
+      name: java-grpc-conn-template
       apiVersion: v1
     fieldref:
       fieldpath: metadata.namespace
