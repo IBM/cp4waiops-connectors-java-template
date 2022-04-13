@@ -92,7 +92,7 @@ public class ConnectorTemplate extends ConnectorBase {
     @Override
     public void onTerminate(CloudEvent event) {
         // Cleanup external resources if needed
-        synchronized(this) {
+        synchronized (this) {
             if (_busyThread != null) {
                 _busyThread.interrupt();
                 _busyThread = null;
@@ -114,7 +114,7 @@ public class ConnectorTemplate extends ConnectorBase {
                     emitStatus(ConnectorStatus.Phase.Running, Duration.ofMinutes(5));
                 }
                 Configuration config = _configuration.get();
-                synchronized(this) {
+                synchronized (this) {
                     if (config.getEnableCPUHeavyWorkload()) {
                         _busyThread = new Thread(() -> {
                             checkIfRandomNumbersArePrime();
@@ -266,7 +266,7 @@ public class ConnectorTemplate extends ConnectorBase {
     protected boolean inefficientIsPrime(int value) {
         if (value < 0) {
             return false;
-        } 
+        }
         for (int i = value - 1; i > 1; i--) {
             if (value % i == 0) {
                 return false;

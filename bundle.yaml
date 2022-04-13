@@ -4,37 +4,20 @@ metadata:
   name: github
 spec:
   prereqs:
-    repo: 'https://cp4waiops-connectors-deploy.{{ .Namespace }}.svc/git/cp4waiops-connectors'
-    branch: bundled-version
+    repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
+    branch: main
     authSecret:
-      name: cp4waiops-connectors-deploy-auth-secret
-    certSecret:
-      name: cp4waiops-connectors-deploy-cert-secret
+      name: test-utilities-github-token
     components:
       - name: deployment
         path: /bundles/connectors/github/prereqs
         type: kustomize
-        kustomization:
-          images:
-            - name: nasm-github-observer
-              newName: hyc-hdm-staging-docker-local.artifactory.swg-devops.com/nasm-github-observer
-              newTag: release-3.2-latest-amd64
-            - name: ibm-grpc-github-connector
-              newName: hyc-connector-framework-team-integrations-docker-local.artifactory.swg-devops.com/cp/aiopsedge/ibm-grpc-github-connector
-              newTag: unreleased-main-latest
   instanced:
-    repo: 'https://cp4waiops-connectors-deploy.{{ .Namespace }}.svc/git/cp4waiops-connectors'
-    branch: bundled-version
+    repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
+    branch: main
     authSecret:
-      name: cp4waiops-connectors-deploy-auth-secret
-    certSecret:
-      name: cp4waiops-connectors-deploy-cert-secret
+      name: test-utilities-github-token
     components:
       - name: connector
         path: /bundles/connectors/github/connector
         type: kustomize
-        kustomization:
-          images:
-            - name: ibm-grpc-github-connector
-              newName: hyc-connector-framework-team-integrations-docker-local.artifactory.swg-devops.com/cp/aiopsedge/ibm-grpc-github-connector 
-              newTag: unreleased-main-latest

@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ibm.aiops.connectors.event-template</groupId>
-  <artifactId>connector-event-template</artifactId>
+  <artifactId>java-grpc-connector-template</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <repositories>

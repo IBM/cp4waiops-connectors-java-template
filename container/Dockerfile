@@ -31,7 +31,7 @@ FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
 COPY --chown=1001:0  container/server.xml /config/
 RUN features.sh
 
-COPY --from=builder --chown=1001:0  /build/connector/target/connector-event-template.war /config/apps/
+COPY --from=builder --chown=1001:0  /build/connector/target/java-grpc-connector-template.war /config/apps/
 
 ## The following are examples of security related artifacts you may want to mount to the image at runtime.
 # /etc/x509/certs/tls.crt

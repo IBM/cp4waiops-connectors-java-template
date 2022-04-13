@@ -12,22 +12,22 @@ configurations:
   - varreference.yaml
 
 images:
-  - name: connector-event-template
-    newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/connector-event-template
+  - name: java-grpc-connector-template
+    newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template
     newTag: latest
 
 vars:
   - name: SERVICE_NAME
     objref:
       kind: Service
-      name: ibm-grpc-github-connector
+      name: java-grpc-connector-template
       apiVersion: v1
     fieldref:
       fieldpath: metadata.name
   - name: SERVICE_NAMESPACE
     objref:
       kind: Service
-      name: ibm-grpc-github-connector
+      name: java-grpc-connector-template
       apiVersion: v1
     fieldref:
       fieldpath: metadata.namespace

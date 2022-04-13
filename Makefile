@@ -1,5 +1,5 @@
 CONNECTOR_SDK_VERSION := 1.3.2
-DOCKER_IMAGE := hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/connector-event-template:latest
+DOCKER_IMAGE := hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template:latest
 
 ifeq ($(shell uname -s),Darwin)
 	# gnu-sed, can be installed using homebrew

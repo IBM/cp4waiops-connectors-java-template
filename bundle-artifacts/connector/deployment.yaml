@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: connector-event-template
+  name: java-grpc-connector-template
   labels:
-    app: connector-event-template
+    app: java-grpc-connector-template
     connectors.aiops.ibm.com/restart-on-secret-changed: ""
 spec:
   selector:
     matchLabels:
-      app: connector-event-template
+      app: java-grpc-connector-template
       instance: connector
   template:
     metadata:
       labels:
-        app: connector-event-template
+        app: java-grpc-connector-template
         instance: connector
     spec:
       imagePullSecrets:
@@ -35,9 +35,9 @@ spec:
                     values:
                       - linux
       containers:
-        - image: connector-event-template:unreleased-main-latest
+        - image: java-grpc-connector-template:unreleased-main-latest
           imagePullPolicy: Always
-          name: connector-event-template
+          name: java-grpc-connector-template
           env:
             - name: POD_NAME
               valueFrom:

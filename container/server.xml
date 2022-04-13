@@ -10,7 +10,7 @@
                 httpPort="9080"
                 httpsPort="9443"/>
 
-  <webApplication location="connector-event-template.war" contextRoot="/" />
+  <webApplication location="java-grpc-connector-template.war" contextRoot="/" />
 
   <!-- info level logging for production -->
   <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="info" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=info" />

@@ -1,6 +1,6 @@
 apiVersion: connectors.aiops.ibm.com/v1beta1
 kind: MicroEdgeConfiguration
 metadata:
-  name: connector-event-template
+  name: java-grpc-connector-template
 spec:
-  image: connector-event-template
+  image: java-grpc-connector-template
