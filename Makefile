@@ -1,4 +1,4 @@
-CONNECTOR_SDK_VERSION := 1.3.2
+CONNECTOR_SDK_VERSION := 1.3.3
 DOCKER_IMAGE := hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template:latest
 
 ifeq ($(shell uname -s),Darwin)

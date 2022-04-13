@@ -45,6 +45,7 @@ public class ConnectorTemplate extends ConnectorBase {
     private Counter _samplesGathered;
     private Counter _primesFound;
     private Counter _compositesFound;
+    private Counter _errorsSeen;
 
     private Thread _busyThread;
 
@@ -60,9 +61,10 @@ public class ConnectorTemplate extends ConnectorBase {
     @Override
     public void registerMetrics(MeterRegistry metricRegistry) {
         super.registerMetrics(metricRegistry);
-        _samplesGathered = metricRegistry.counter("grpc.event.template.samples.gathered");
-        _primesFound = metricRegistry.counter("grpc.event.template.primes.found");
-        _compositesFound = metricRegistry.counter("grpc.event.template.composites.found");
+        _samplesGathered = metricRegistry.counter("grpc.template.samples.gathered");
+        _primesFound = metricRegistry.counter("grpc.template.primes.found");
+        _compositesFound = metricRegistry.counter("grpc.template.composites.found");
+        _errorsSeen = metricRegistry.counter("grpc.template.errors");
     }
 
     @Override
@@ -162,6 +164,7 @@ public class ConnectorTemplate extends ConnectorBase {
             emitCloudEvent(LIFECYCLE_INPUT_EVENTS_TOPIC, null, ce);
         } catch (JsonProcessingException error) {
             logger.log(Level.SEVERE, "failed to construct cpu threshold breached cloud event", error);
+            _errorsSeen.increment();
         }
     }
 
@@ -245,6 +248,7 @@ public class ConnectorTemplate extends ConnectorBase {
             }
         } catch (IOException error) {
             logger.log(Level.WARNING, "failed to collect cpu samples", error);
+            _errorsSeen.increment();
         }
         return samples;
     }

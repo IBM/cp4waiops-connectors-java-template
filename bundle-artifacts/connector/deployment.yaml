@@ -60,7 +60,7 @@ spec:
               memory: 768Mi
               ephemeral-storage: "0"
             limits:
-              cpu: "2"
+              cpu: "1"
               memory: 1024Mi
               ephemeral-storage: 1Gi
           livenessProbe:

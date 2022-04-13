@@ -27,6 +27,10 @@ RUN cd /build/connector && rm -r src/main/liberty && mvn install
 ## Final image
 FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
 
+USER 0
+RUN dnf install -y procps-ng && dnf clean all
+USER 1001
+
 # Add Liberty server configuration including all necessary features
 COPY --chown=1001:0  container/server.xml /config/
 RUN features.sh
