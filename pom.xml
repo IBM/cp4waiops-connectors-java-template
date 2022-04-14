@@ -9,7 +9,7 @@
   <repositories>
     <repository>
       <id>sdk repository</id>
-      <url>file:///${project.basedir}/../repo</url>
+      <url>file:///${project.basedir}/repo</url>
     </repository>
   </repositories>
   <properties>

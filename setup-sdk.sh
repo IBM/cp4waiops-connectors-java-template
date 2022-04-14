@@ -20,3 +20,5 @@ curl -LJO -H "Authorization: token ${GITHUB_TOKEN}" -H 'Accept: application/octe
 rm -rf repo
 tar xfz repo.tgz
 rm -f repo.tgz
+
+echo "sdk downloaded to repo directory"

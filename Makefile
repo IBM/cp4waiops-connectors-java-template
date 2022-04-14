@@ -1,7 +1,8 @@
+REGISTRY ?= hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com
 TAG ?= latest
 
 CONNECTOR_SDK_VERSION := 1.3.3
-DOCKER_IMAGE := hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template:$(TAG)
+DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
 
 ifeq ($(shell uname -s),Darwin)
 	# gnu-sed, can be installed using homebrew
@@ -9,6 +10,9 @@ ifeq ($(shell uname -s),Darwin)
 else
 	SED_EXE := sed
 endif
+
+docker-login:
+	docker login $(REGISTRY) -u "$$DOCKER_USERNAME" -p "$$DOCKER_PASSWORD"
 
 docker-build:
 	chmod ug+x container/import-certs.sh

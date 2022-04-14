@@ -17,11 +17,11 @@ ENV PATH="/usr/local/maven/bin:${PATH}"
 ENV MVN_HOME=/usr/local/maven
 
 # Download and cache dependencies beforehand
-COPY --chown=jboss:jboss repo /build/repo
-COPY --chown=jboss:jboss pom.xml /build/connector/
+COPY repo /build/connector/repo
+COPY pom.xml /build/connector/
 RUN cd /build/connector && mvn dependency:go-offline -B
 
-COPY --chown=jboss:jboss src /build/connector/src
+COPY src /build/connector/src
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image

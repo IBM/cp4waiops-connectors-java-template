@@ -16,6 +16,8 @@ stages:
 before_script:
   - make download-connector-sdk
 
+install: echo skipping default mvn install step
+
 jobs:
   include:
     - stage: build
@@ -38,6 +40,7 @@ jobs:
       if: type = pull_request
       os: linux
       script:
+        - make docker-login
         - make TAG=$TRAVIS_PULL_REQUEST_BRANCH docker-build docker-push
     - stage: build
       name: "Create release image"
@@ -46,6 +49,7 @@ jobs:
       if: type != pull_request
       os: linux
       script:
+        - make docker-login
         - make TAG=$TRAVIS_PULL_REQUEST_BRANCH docker-build docker-push
 
 notifications:
