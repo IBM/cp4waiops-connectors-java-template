@@ -34,6 +34,36 @@ spec:
                     operator: In
                     values:
                       - linux
+      initContainers:
+        - image: java-grpc-connector-template:unreleased-main-latest
+          imagePullPolicy: Always
+          name: cert-setup
+          command:
+            - "/opt/import-certs.sh"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 300Mi
+              ephemeral-storage: "0"
+            limits:
+              cpu: 200m
+              memory: 500Mi
+              ephemeral-storage: 200Mi
+          volumeMounts:
+            - name: server-certs-raw
+              mountPath: /opt/raw-cert
+            - name: server-certs
+              mountPath: /opt/cert
+            - name: config-overrides
+              mountPath: /config/configDropins/overrides/
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
       containers:
         - image: java-grpc-connector-template:unreleased-main-latest
           imagePullPolicy: Always
@@ -57,11 +87,11 @@ spec:
           resources:
             requests:
               cpu: 200m
-              memory: 768Mi
+              memory: 400Mi
               ephemeral-storage: "0"
             limits:
               cpu: "1"
-              memory: 1024Mi
+              memory: 512Mi
               ephemeral-storage: 1Gi
           livenessProbe:
             httpGet:
@@ -82,6 +112,8 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 10
           volumeMounts:
+            - name: server-certs
+              mountPath: /opt/cert
             - name: grpc-bridge-service-binding
               mountPath: /bindings/grpc-bridge
             - name: vault-binding
@@ -99,6 +131,14 @@ spec:
       hostIPC: false
       terminationGracePeriodSeconds: 30
       volumes:
+        - name: server-certs-raw
+          secret:
+            secretName: java-grpc-connector-template
+            defaultMode: 420
+        - name: server-certs
+          emptyDir: {}
+        - name: config-overrides
+          emptyDir: {}
         - name: grpc-bridge-service-binding
           projected:
             sources:

@@ -1,0 +1,58 @@
+# Supported languages listed here: https://docs.travis-ci.com/user/languages/
+language: java
+jdk:
+  - openjdk11
+
+services:
+- docker
+
+branches:
+  only:
+    - main
+
+stages:
+  - build
+
+before_script:
+  - make download-connector-sdk
+
+jobs:
+  include:
+    - stage: build
+      name: "Run unit tests"
+      env:
+        - BUILDING=tests
+      script:
+        - make test
+    - stage: build
+      name: "Run scans"
+      if: type = pull_request
+      env:
+        - BUILDING=scans
+      script:
+        - make lint-check
+    - stage: build
+      name: "Create dev image"
+      env:
+        - BUILDING=dev-image
+      if: type = pull_request
+      os: linux
+      script:
+        - make TAG=$TRAVIS_PULL_REQUEST_BRANCH docker-build docker-push
+    - stage: build
+      name: "Create release image"
+      env:
+        - BUILDING=release-image
+      if: type != pull_request
+      os: linux
+      script:
+        - make TAG=$TRAVIS_PULL_REQUEST_BRANCH docker-build docker-push
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      - ibm-cloudplatform:9YJcmhOhUJM1pMJfRkYXgb5G#aiopsedge-cicd
+    on_pull_requests: false
+    on_success: change
+    on_failure: always

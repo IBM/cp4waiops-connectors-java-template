@@ -239,7 +239,7 @@ public class ConnectorTemplate extends ConnectorBase {
                             double usage = Double.valueOf(parts[1]);
                             samples.put(pid, usage);
                         }
-                    } catch (NumberFormatException error) {
+                    } catch (NumberFormatException ignored) {
                         // skip line
                     }
                 });
@@ -259,13 +259,13 @@ public class ConnectorTemplate extends ConnectorBase {
                     _threads.add(task);
                 }
                 while (this._threads.size() > config.getNumCPUWorkloadThreads() && !this._threads.isEmpty()) {
-                    _threads.get(this._threads.size()-1).cancel(true);
-                    _threads.remove(this._threads.size()-1);
+                    _threads.get(this._threads.size() - 1).cancel(true);
+                    _threads.remove(this._threads.size() - 1);
                 }
             } else if (_executor != null) {
                 while (!this._threads.isEmpty()) {
-                    _threads.get(this._threads.size()-1).cancel(true);
-                    _threads.remove(this._threads.size()-1);
+                    _threads.get(this._threads.size() - 1).cancel(true);
+                    _threads.remove(this._threads.size() - 1);
                 }
             }
         }

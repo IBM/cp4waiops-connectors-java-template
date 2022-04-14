@@ -11,6 +11,7 @@ else
 endif
 
 docker-build:
+	chmod ug+x container/import-certs.sh
 	docker build -f container/Dockerfile -t $(DOCKER_IMAGE) .
 
 docker-push:
@@ -20,6 +21,14 @@ docker-push:
 download-connector-sdk:
 	$(SED_EXE) -i -e "s|.*CONNECTOR_SDK_VERSION.*|      <version>$(CONNECTOR_SDK_VERSION)</version> <!-- CONNECTOR_SDK_VERSION -->|" pom.xml
 	./setup-sdk.sh "v$(CONNECTOR_SDK_VERSION)"
+
+.PHONY: format
+format:
+	mvn formatter:format
+
+.PHONY: lint-check
+lint-check:
+	mvn pmd:check formatter:validate -Dpmd.printFailingErrors=true
 
 .PHONY: test
 test:

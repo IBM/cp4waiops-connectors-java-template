@@ -31,6 +31,9 @@ USER 0
 RUN dnf install -y procps-ng && dnf clean all
 USER 1001
 
+COPY --chown=1001:0 container/import-certs.sh /opt/import-certs.sh
+COPY --chown=1001:0 container/jvm.options /config/
+
 # Add Liberty server configuration including all necessary features
 COPY --chown=1001:0  container/server.xml /config/
 RUN features.sh
