@@ -50,7 +50,7 @@ jobs:
       os: linux
       script:
         - make docker-login
-        - make TAG=$TRAVIS_PULL_REQUEST_BRANCH docker-build docker-push
+        - make docker-build docker-push
 
 notifications:
   email: false
