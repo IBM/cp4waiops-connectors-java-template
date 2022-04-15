@@ -40,7 +40,7 @@ components:
 
 First [obtain the sdk](#obtain-the-sdk).
 
-To run the liberty server outside of a docker container, navigate to the top` directory and run
+To run the liberty server outside of a docker container, navigate to the top directory and run
 `mvn liberty:run`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
 docker container!
