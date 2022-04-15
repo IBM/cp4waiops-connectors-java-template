@@ -21,6 +21,21 @@ verifying the status on the related BundleManifest and GitApp CRs, create a conn
 If the connection is deployed locally to the cluster, the image will need to be updated to point at the development image.
 If the connection is configured for microedge deployment, the script can be modified to use the development image.
 
+NOTE:
+
+The image can be overriden on the bundlemanifest components. For example:
+```yaml
+components:
+  - name: connector
+    path: /bundle-artifacts/connector
+    type: kustomize
+    kustomization:
+      images:
+        - name: java-grpc-connector-template
+          newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template
+          newTag: sdk-updates
+```
+
 ## Development
 
 First [obtain the sdk](#obtain-the-sdk).

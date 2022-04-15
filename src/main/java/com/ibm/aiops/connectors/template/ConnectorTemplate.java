@@ -1,6 +1,6 @@
 package com.ibm.aiops.connectors.template;
 
-import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +26,8 @@ import com.ibm.aiops.connectors.bridge.ConnectorStatus;
 import com.ibm.aiops.connectors.sdk.ConnectorBase;
 import com.ibm.aiops.connectors.sdk.ConnectorConfigurationHelper;
 import com.ibm.aiops.connectors.sdk.ConnectorException;
+import com.ibm.aiops.connectors.sdk.Constant;
+import com.ibm.aiops.connectors.sdk.EventLifeCycleEvent;
 import com.ibm.aiops.connectors.sdk.SDKSettings;
 
 import io.cloudevents.CloudEvent;
@@ -44,16 +46,16 @@ public class ConnectorTemplate extends ConnectorBase {
 
     static final String THRESHOLD_BREACHED_CE_TYPE = "com.ibm.aiops.connectors.template.threshold-breached";
 
-    private AtomicReference<Configuration> _configuration;
-    private AtomicBoolean _configurationUpdated;
+    protected AtomicReference<Configuration> _configuration;
+    protected AtomicBoolean _configurationUpdated;
 
-    private Counter _samplesGathered;
-    private Counter _primesFound;
-    private Counter _compositesFound;
-    private Counter _errorsSeen;
+    protected Counter _samplesGathered;
+    protected Counter _primesFound;
+    protected Counter _compositesFound;
+    protected Counter _errorsSeen;
 
-    private ExecutorService _executor;
-    private List<Future<?>> _threads;
+    protected ExecutorService _executor;
+    protected List<Future<?>> _threads;
 
     /**
      * Instantiates a new ConnectorTemplate
@@ -137,13 +139,10 @@ public class ConnectorTemplate extends ConnectorBase {
     protected void checkCPUThreshold(Configuration config) throws InterruptedException {
         String hostname = getHostName();
         String ipAddress = getIPAddress();
-        Map<String, Double> cpuSamples = collectCPUSamples();
+        double currentUsage = collectCPUSample();
         _samplesGathered.increment();
 
-        double currentUsage = 0;
-        for (double value : cpuSamples.values()) {
-            currentUsage += value;
-        }
+        logger.log(Level.INFO, "cpu usage: " + String.valueOf(currentUsage));
 
         // Check if threshold has been breached
         if (currentUsage < (double) config.getCpuThreshold()) {
@@ -155,10 +154,10 @@ public class ConnectorTemplate extends ConnectorBase {
             EventLifeCycleEvent elcEvent = newCPUThresholdLifeCycleEvent(config, hostname, ipAddress, currentUsage);
             CloudEvent ce = CloudEventBuilder.v1().withId(elcEvent.getId()).withSource(SELF_SOURCE)
                     .withType(THRESHOLD_BREACHED_CE_TYPE)
-                    .withExtension("tenantid", "cfd95b7e-3bc7-4006-a4a8-a73a79c71255")
+                    .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
                     .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
                     .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
-                    .withData("application/json", elcEvent.toJSON().getBytes(StandardCharsets.UTF_8)).build();
+                    .withData(Constant.JSON_CONTENT_TYPE, elcEvent.toJSON().getBytes(StandardCharsets.UTF_8)).build();
             emitCloudEvent(LIFECYCLE_INPUT_EVENTS_TOPIC, null, ce);
         } catch (JsonProcessingException error) {
             logger.log(Level.SEVERE, "failed to construct cpu threshold breached cloud event", error);
@@ -182,21 +181,21 @@ public class ConnectorTemplate extends ConnectorBase {
         event.setExpirySeconds(config.getExpirySeconds());
 
         EventLifeCycleEvent.Type type = new EventLifeCycleEvent.Type();
-        type.setEventType("problem");
+        type.setEventType(EventLifeCycleEvent.EVENT_TYPE_PROBLEM);
         type.setClassification("Threshold breach");
         type.setCondition(String.valueOf(currentUsage) + "%");
         event.setType(type);
 
         Map<String, Object> sender = new HashMap<>();
-        sender.put("type", "agent");
-        sender.put("hostname", hostname);
-        sender.put("ipAddress", ipAddress);
+        sender.put(EventLifeCycleEvent.RESOURCE_TYPE_FIELD, "agent");
+        sender.put(EventLifeCycleEvent.RESOURCE_HOSTNAME_FIELD, hostname);
+        sender.put(EventLifeCycleEvent.RESOURCE_IP_ADDRESS_FIELD, ipAddress);
         event.setSender(sender);
 
         Map<String, Object> resource = new HashMap<>();
-        resource.put("type", "agent");
-        resource.put("hostname", hostname);
-        resource.put("ipAddress", ipAddress);
+        resource.put(EventLifeCycleEvent.RESOURCE_TYPE_FIELD, "agent");
+        resource.put(EventLifeCycleEvent.RESOURCE_HOSTNAME_FIELD, hostname);
+        resource.put(EventLifeCycleEvent.RESOURCE_IP_ADDRESS_FIELD, ipAddress);
         event.setResource(resource);
 
         return event;
@@ -218,54 +217,60 @@ public class ConnectorTemplate extends ConnectorBase {
         }
     }
 
-    protected Map<String, Double> collectCPUSamples() throws InterruptedException {
-        Map<String, Double> samples = new HashMap<>();
-        try {
-            Runtime runtime = Runtime.getRuntime();
-            String[] cmd = new String[] { "ps", "ax", "-o", "pid,%cpu" };
-            Process process = runtime.exec(cmd);
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                String errorMsg = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
-                logger.log(Level.WARNING, "non zero exit code when collecting cpu samples: " + errorMsg);
-            } else {
-                String data = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-                logger.log(Level.INFO, data);
-                data.lines().forEach(line -> {
-                    try {
-                        String[] parts = line.split("\\w+", 2);
-                        if (parts.length >= 2) {
-                            String pid = parts[0];
-                            double usage = Double.valueOf(parts[1]);
-                            samples.put(pid, usage);
-                        }
-                    } catch (NumberFormatException ignored) {
-                        // skip line
+    private long lastCollectionTS = 0;
+    private Map<Long, Long> lastCollectionCPUTimes = new HashMap<>();
+
+    protected double collectCPUSample() {
+        synchronized (this) {
+            var threadMX = ManagementFactory.getThreadMXBean();
+            long[] threads = threadMX.getAllThreadIds();
+
+            Map<Long, Long> currentCollectionCPUTimes = new HashMap<>();
+            double totalCPUTime = 0;
+
+            for (long id : threads) {
+                long cpuNs = threadMX.getThreadCpuTime(id);
+                if (cpuNs > 0) {
+                    currentCollectionCPUTimes.put(id, cpuNs);
+                    if (lastCollectionCPUTimes.containsKey(id)) {
+                        totalCPUTime += cpuNs - lastCollectionCPUTimes.get(id);
+                    } else {
+                        totalCPUTime += cpuNs;
                     }
-                });
+                }
             }
-        } catch (IOException error) {
-            logger.log(Level.WARNING, "failed to collect cpu samples", error);
-            _errorsSeen.increment();
+
+            if (lastCollectionTS == 0) {
+                lastCollectionTS = System.nanoTime();
+                return -1;
+            } else {
+                long currentTs = System.nanoTime();
+                double percentage = 100 * (totalCPUTime) / (currentTs - lastCollectionTS);
+                lastCollectionCPUTimes = currentCollectionCPUTimes;
+                lastCollectionTS = currentTs;
+                return percentage;
+            }
         }
-        return samples;
     }
 
     protected void updateWorkload(Configuration config) {
         synchronized (this._threads) {
             if (config.getEnableCPUHeavyWorkload()) {
                 for (int i = this._threads.size(); i < config.getNumCPUWorkloadThreads(); i++) {
+                    logger.log(Level.INFO, "spawning new workload thread");
                     Future<?> task = _executor.submit(() -> checkIfRandomNumbersArePrime());
                     _threads.add(task);
                 }
                 while (this._threads.size() > config.getNumCPUWorkloadThreads() && !this._threads.isEmpty()) {
-                    _threads.get(this._threads.size() - 1).cancel(true);
-                    _threads.remove(this._threads.size() - 1);
+                    logger.log(Level.INFO, "removing workload thread");
+                    var item = _threads.remove(this._threads.size() - 1);
+                    item.cancel(true);
                 }
             } else if (_executor != null) {
                 while (!this._threads.isEmpty()) {
-                    _threads.get(this._threads.size() - 1).cancel(true);
-                    _threads.remove(this._threads.size() - 1);
+                    logger.log(Level.INFO, "removing workload thread");
+                    var item = _threads.remove(this._threads.size() - 1);
+                    item.cancel(true);
                 }
             }
         }
@@ -274,25 +279,31 @@ public class ConnectorTemplate extends ConnectorBase {
     protected void checkIfRandomNumbersArePrime() {
         Random r = new Random();
         while (!Thread.interrupted()) {
-            int value = r.nextInt(Integer.MAX_VALUE);
-            if (inefficientIsPrime(value)) {
-                logger.log(Level.INFO, "found a prime number: " + String.valueOf(value));
-                _primesFound.increment();
-            } else {
-                logger.log(Level.FINE, "found a non-prime number: " + String.valueOf(value));
-                _compositesFound.increment();
+            try {
+                int value = r.nextInt(Integer.MAX_VALUE);
+                if (inefficientIsPrime(value)) {
+                    logger.log(Level.INFO, "found a prime number: " + String.valueOf(value));
+                    _primesFound.increment();
+                } else {
+                    logger.log(Level.FINE, "found a non-prime number: " + String.valueOf(value));
+                    _compositesFound.increment();
+                }
+            } catch (InterruptedException error) {
+                break;
             }
         }
     }
 
-    protected boolean inefficientIsPrime(int value) {
-        if (value < 0) {
+    protected boolean inefficientIsPrime(int value) throws InterruptedException {
+        if (value <= 1) {
             return false;
         }
         for (int i = value - 1; i > 1; i--) {
             if (value % i == 0) {
                 return false;
             }
+            if (Thread.interrupted())
+                throw new InterruptedException();
         }
         return true;
     }
