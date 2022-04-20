@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,7 +47,8 @@ public class ConnectorTemplate extends ConnectorBase {
     static final String THRESHOLD_BREACHED_CE_TYPE = "com.ibm.aiops.connectors.template.threshold-breached";
 
     protected AtomicReference<Configuration> _configuration;
-    protected AtomicBoolean _configurationUpdated;
+
+    protected AtomicLong _cpuMetricLastGathered;
 
     protected Counter _samplesGathered;
     protected Counter _primesFound;
@@ -62,7 +63,7 @@ public class ConnectorTemplate extends ConnectorBase {
      */
     public ConnectorTemplate() {
         _configuration = new AtomicReference<>();
-        _configurationUpdated = new AtomicBoolean(false);
+        _cpuMetricLastGathered = new AtomicLong(0);
         _executor = Executors.newCachedThreadPool();
         _threads = new ArrayList<>();
     }
@@ -96,7 +97,6 @@ public class ConnectorTemplate extends ConnectorBase {
     public SDKSettings onReconfigure(CloudEvent event) throws ConnectorException {
         // Update topics and local state if needed
         SDKSettings settings = onConfigure(event);
-        _configurationUpdated.set(true);
         return settings;
     }
 
@@ -108,31 +108,52 @@ public class ConnectorTemplate extends ConnectorBase {
 
     @Override
     public void run() {
-        // Set connector status as running
-        emitStatus(ConnectorStatus.Phase.Running, Duration.ofMinutes(5));
+        final long NANOSECONDS_PER_SECOND = 1000000000;
+        final long TASK_PERIOD_S = 60;
+        final long STATUS_UPDATE_PERIOD_S = 150;
+        final long LOOP_PERIOD_MS = 1000;
 
         boolean interrupted = false;
-        long lastRan = System.nanoTime();
+        long taskLastRan = 0;
+        long statusLastUpdated = 0;
         while (!interrupted) {
             try {
-                // If configuration was successfully updated, resend a status update
-                if (_configurationUpdated.get()) {
-                    emitStatus(ConnectorStatus.Phase.Running, Duration.ofMinutes(5));
-                }
-
                 Configuration config = _configuration.get();
                 updateWorkload(config);
 
                 // Some background task that executes periodically
-                if (System.nanoTime() - lastRan / 1000000000 > 30) {
+                if ((System.nanoTime() - taskLastRan) / NANOSECONDS_PER_SECOND > TASK_PERIOD_S) {
+                    taskLastRan = System.nanoTime();
                     checkCPUThreshold(config);
                 }
-                Thread.sleep(1 * 15 * 1000);
+
+                // Periodic status update
+                if ((System.nanoTime() - statusLastUpdated) / NANOSECONDS_PER_SECOND > STATUS_UPDATE_PERIOD_S) {
+                    statusLastUpdated = System.nanoTime();
+                    updateStatus();
+                }
+
+                // Wait
+                Thread.sleep(LOOP_PERIOD_MS);
             } catch (InterruptedException ignored) {
                 // termination of the process has been requested
                 interrupted = true;
                 Thread.currentThread().interrupt();
             }
+        }
+    }
+
+    protected void updateStatus() {
+        final Duration StatusTTL = Duration.ofMinutes(5);
+        final Duration LastGatherPeriod = Duration.ofMinutes(3);
+
+        long lastGather = _cpuMetricLastGathered.get();
+        if (System.nanoTime() - lastGather > LastGatherPeriod.toNanos()) {
+            Map<String, String> details = new HashMap<>();
+            details.put("reason", "failed to gather cpu metrics recently");
+            emitStatus(ConnectorStatus.Phase.Retrying, StatusTTL, details);
+        } else {
+            emitStatus(ConnectorStatus.Phase.Running, StatusTTL);
         }
     }
 
@@ -151,7 +172,8 @@ public class ConnectorTemplate extends ConnectorBase {
 
         // Emit event
         try {
-            EventLifeCycleEvent elcEvent = newCPUThresholdLifeCycleEvent(config, hostname, ipAddress, currentUsage);
+            EventLifeCycleEvent elcEvent = newCPUThresholdLifeCycleEvent(config, hostname, ipAddress,
+                    config.getCpuThreshold(), currentUsage);
             CloudEvent ce = CloudEventBuilder.v1().withId(elcEvent.getId()).withSource(SELF_SOURCE)
                     .withType(THRESHOLD_BREACHED_CE_TYPE)
                     .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
@@ -166,7 +188,7 @@ public class ConnectorTemplate extends ConnectorBase {
     }
 
     protected EventLifeCycleEvent newCPUThresholdLifeCycleEvent(Configuration config, String hostname, String ipAddress,
-            double currentUsage) {
+            double threshold, double currentUsage) {
 
         EventLifeCycleEvent event = new EventLifeCycleEvent();
         event.setId(UUID.randomUUID().toString());
@@ -183,7 +205,7 @@ public class ConnectorTemplate extends ConnectorBase {
         EventLifeCycleEvent.Type type = new EventLifeCycleEvent.Type();
         type.setEventType(EventLifeCycleEvent.EVENT_TYPE_PROBLEM);
         type.setClassification("Threshold breach");
-        type.setCondition(String.valueOf(currentUsage) + "%");
+        type.setCondition("Exceeds " + String.valueOf(threshold) + "%");
         event.setType(type);
 
         Map<String, Object> sender = new HashMap<>();
@@ -244,6 +266,7 @@ public class ConnectorTemplate extends ConnectorBase {
                 lastCollectionTS = System.nanoTime();
                 return -1;
             } else {
+                _cpuMetricLastGathered.set(System.nanoTime());
                 long currentTs = System.nanoTime();
                 double percentage = 100 * (totalCPUTime) / (currentTs - lastCollectionTS);
                 lastCollectionCPUTimes = currentCollectionCPUTimes;

@@ -79,9 +79,6 @@ spec:
                   fieldPath: metadata.namespace
           ports:
             - containerPort: 9443
-              name: grpc
-              protocol: TCP
-            - containerPort: 9080
               name: metrics
               protocol: TCP
           resources:
@@ -118,6 +115,8 @@ spec:
               mountPath: /bindings/grpc-bridge
             - name: vault-binding
               mountPath: /bindings/vault
+            - name: config-overrides
+              mountPath: /config/configDropins/overrides/
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

@@ -6,7 +6,7 @@ metadata:
     app: java-grpc-connector-template
 spec:
   endpoints:
-  - port: metrics
+  - targetPort: metrics
     path: /h/metrics
     scheme: https
     tlsConfig:

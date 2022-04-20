@@ -125,12 +125,13 @@ public class TestConnectorTemplate {
         Configuration config = new Configuration();
         config.setSeverityLevel(4);
         config.setExpirySeconds(500);
-        EventLifeCycleEvent evt = _connector.newCPUThresholdLifeCycleEvent(config, "localhost", "127.0.0.1", 34);
+        EventLifeCycleEvent evt = _connector.newCPUThresholdLifeCycleEvent(config, "localhost", "127.0.0.1", 30, 34);
 
         Assertions.assertEquals(EventLifeCycleEvent.EVENT_TYPE_PROBLEM, evt.getType().getEventType());
-        Assertions.assertEquals("34.0%", evt.getType().getCondition());
+        Assertions.assertEquals("Exceeds 30.0%", evt.getType().getCondition());
         Assertions.assertEquals(4, evt.getSeverity());
         Assertions.assertEquals(500, evt.getExpirySeconds());
+        Assertions.assertEquals("34.0", evt.getDetails().get("cpu usage"));
 
         String serialized = evt.toJSON();
         Assertions.assertNotNull(serialized);

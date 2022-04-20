@@ -30,7 +30,7 @@ spec:
       expirySeconds:
         type: integer
         description: Amount of time in seconds before the event is dismissed
-        default: 30
+        default: 300
       enableCPUHeavyWorkload:
         type: boolean
         description: Starts or stops a cpu intensive task
@@ -43,7 +43,6 @@ spec:
   uiSchema:
     type: java-grpc-connector-template
     displayName: "Java gRPC Connector Template"
-    iconFileType: png
     categories:
     - "{{connector.common.category.events}}"
     url: https://ibm.biz/int-github
@@ -105,8 +104,8 @@ spec:
       min: 1
       max: 2147483647
       step: 1
-      defaultValue: 30
-      helperText: "Specify the seconds to elapse before dismissing the event automatically. The default is 30."
+      defaultValue: 300
+      helperText: "Specify the seconds to elapse before dismissing the event automatically. The default is 300."
       apiMapping: connection_config.expirySeconds
       formStep: addConnection
       isRequired: true
