@@ -163,6 +163,11 @@ spec:
                       path: client-id
                     - key: client-secret
                       path: client-secret
+              - secret:
+                  name: aiopsedge-health-check-key
+                  items:
+                    - key: apikey
+                      path: metric-api-key
         - name: vault-binding
           projected:
             sources:

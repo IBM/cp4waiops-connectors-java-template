@@ -16,6 +16,9 @@ spec:
           name: aiopsedge-openshift-ca-cert
           key: service-ca.crt
           optional: false
+    bearerTokenSecret: 
+      name: aiopsedge-health-check-key
+      key: apikey
   selector:
     matchLabels:
       app: java-grpc-connector-template

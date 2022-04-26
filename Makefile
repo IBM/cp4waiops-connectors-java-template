@@ -1,7 +1,7 @@
 REGISTRY ?= hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com
 TAG ?= latest
 
-CONNECTOR_SDK_VERSION := 1.3.4
+CONNECTOR_SDK_VERSION := 1.4.0
 DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
 
 ifeq ($(shell uname -s),Darwin)
