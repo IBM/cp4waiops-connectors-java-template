@@ -10,6 +10,11 @@ spec:
   - apiType: AsyncAPI
     name: connector
   documentation: https://github.ibm.com/quicksilver/cp4waiops-grpc-templates/blob/master/open-liberty/README.md
+  permissions:
+    channels:
+      - name: cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
+        operations:
+          - write
   schema:
     additionalProperties: false
     oneOf:
@@ -18,6 +23,7 @@ spec:
       - severityLevel
       - expirySeconds
       - enableCPUHeavyWorkload
+      - enableGatherMetrics
     properties:
       cpuThreshold:
         type: integer
@@ -34,7 +40,31 @@ spec:
       enableCPUHeavyWorkload:
         type: boolean
         description: Starts or stops a cpu intensive task
+        default: false
+      enableGatherMetrics:
+        type: boolean
+        description: Enables or disables metric connector template
         default: true
+      metricName:
+        type: string
+        description: Name of metric to generate
+        default: Usage%  
+      isLiveData:
+        type: boolean
+        description: True enables live data or false enables historical
+      deploymentType:
+        type: string
+        description: Dictates if deployment is local or remote
+        default: local
+      display_name:
+        description: Display name of the connection
+        type: string
+      historicStartDate:
+        description: Date to start dumping generated sample data
+        type: string
+      historicEndDate:
+        description: Date to end dumping generated sample data
+        type: string
       numCPUWorkloadThreads:
         type: integer
         description: Number of threads to use for cpu intensive task
@@ -112,12 +142,73 @@ spec:
     - id: enableCPUHeavyWorkload
       element: input
       type: toggle
-      defaultToggled: true
+      defaultToggled: false
       label: "Enable workload with high CPU usage"
       labelOff: "{{common.Off}}"
       labelOn: "{{common.On}}"
       apiMapping: connection_config.enableCPUHeavyWorkload
       formStep: addConnection
+    - id: enableGatherMetrics
+      apiMapping: connection_config.enableGatherMetrics
+      element: toggleForm
+      defaultToggled: true   
+      items:
+        - "{{common.Off}}"
+        - "{{common.On}}"
+      itemKeys: [true, false]  
+      description: "Enables or disables metric connector template"
+      headerLabel: "Enable gathering of connector metrics"
+      isRequired: true
+      formStep: addConnection
+      form:
+        - id: false
+        - id: true
+          rows:
+            - id: metricName
+              element: input
+              type: text
+              label: "Metric name"
+              placeholder: "Usage%"
+              defaultValue: Usage%
+              helperText: "Specify the name of the generated metric data."
+              apiMapping: connection_config.metricName
+              formStep: addConnection
+              isRequired: true
+            - id: isLiveData
+              apiMapping: connection_config.isLiveData
+              element: form
+              type: dynamic
+              label: "{{common.mode}}"
+              items:
+                - "{{common.Historical}}"   
+                - "{{common.Live}}"            
+              itemKeys: [false, true]
+              isRequired: true
+              formStep: addConnection
+              form:                     
+                - id: false
+                  rows:
+                    - id: start
+                      element: input
+                      type: date
+                      label: "{{connector.common.form.start_date.label}}"
+                      placeholder: "{{connector.common.form.start_date.placeholder}}"
+                      formStep: addConnection
+                      header: "{{connector.common.form.historicalData.header}}"
+                      headerLabel: "{{connector.common.form.historicalData.headerDesc}}"
+                      headerLabelWarning: "{{connector.common.form.historicalData.headerWarning}}"
+                      isRequired: true
+                      apiMapping: connection_config.historicStartDate
+                    - id: end
+                      element: input
+                      type: date
+                      label: "{{connector.common.form.end_date.label}}"
+                      placeholder: "{{connector.common.form.end_date.placeholder}}"
+                      formStep: addConnection
+                      isRequired: true
+                      apiMapping: connection_config.historicEndDate
+                - id: true
+                  rows:
     - id: numCPUWorkloadThreads
       element: input
       type: number

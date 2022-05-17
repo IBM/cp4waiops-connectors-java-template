@@ -5,6 +5,11 @@ public class Configuration {
     private int severityLevel = 6;
     private int expirySeconds = 60;
     private boolean enableCPUHeavyWorkload = false;
+    private boolean enableGatherMetrics = true;
+    private boolean isLiveData = false;
+    private String historicStartDate;
+    private String historicEndDate;
+    private String metricName = "Usage%";
     private int numCPUWorkloadThreads = 1;
 
     public Configuration() {
@@ -24,6 +29,46 @@ public class Configuration {
 
     public void setEnableCPUHeavyWorkload(boolean enableCPUHeavyWorkload) {
         this.enableCPUHeavyWorkload = enableCPUHeavyWorkload;
+    }
+
+    public boolean getEnableGatherMetrics() {
+        return enableGatherMetrics;
+    }
+
+    public void setEnableGatherMetrics(boolean enableGatherMetrics) {
+        this.enableGatherMetrics = enableGatherMetrics;
+    }
+
+    public boolean getIsLiveData() {
+        return isLiveData;
+    }
+
+    public void setIsLiveData(boolean isLiveData) {
+        this.isLiveData = isLiveData;
+    }
+
+    public String getHistoricStartDate() {
+        return historicStartDate;
+    }
+
+    public void setHistoricStartDate(String historicStartDate) {
+        this.historicStartDate = historicStartDate;
+    }
+
+    public String getHistoricEndDate() {
+        return historicEndDate;
+    }
+
+    public void setHistoricEndDate(String historicEndDate) {
+        this.historicEndDate = historicEndDate;
+    }
+
+    public String getMetricName() {
+        return metricName;
+    }
+
+    public void setMetricName(String metricName) {
+        this.metricName = metricName;
     }
 
     public int getExpirySeconds() {

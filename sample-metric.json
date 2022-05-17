@@ -1,0 +1,15 @@
+{    
+    "groups": [    
+        {
+            "timestamp": "1642516320000",
+            "resourceID": "database01.bigblue.com",
+            "metrics": {
+                "Usage%": 0.35822842531551846
+            },
+            "attributes": {
+                "group": "CPU",
+                "node": "database01.bigblue.com"
+            }
+        }
+    ]
+}

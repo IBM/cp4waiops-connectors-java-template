@@ -4,6 +4,8 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.aiops.connectors.bridge.ConnectorStatus;
 import com.ibm.aiops.connectors.sdk.ConnectorBase;
 import com.ibm.aiops.connectors.sdk.ConnectorConfigurationHelper;
@@ -40,11 +43,15 @@ public class ConnectorTemplate extends ConnectorBase {
 
     // Topics
     static final String LIFECYCLE_INPUT_EVENTS_TOPIC = "cp4waiops-cartridge.lifecycle.input.events";
+    static final String METRICS_MANAGER_INPUT_TOPIC = "cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw";
 
     // Self identifier
     static final URI SELF_SOURCE = URI.create("template.connectors.aiops.ibm.com/grpc-event-template");
 
     static final String THRESHOLD_BREACHED_CE_TYPE = "com.ibm.aiops.connectors.template.threshold-breached";
+    static final String METRIC_GATHERED_CE_TYPE = "com.ibm.aiops.connectors.template.metric-gathered";
+
+    static final String METRIC_RESOURCE_ID = "database01.bigblue.com";
 
     protected AtomicReference<Configuration> _configuration;
 
@@ -84,12 +91,34 @@ public class ConnectorTemplate extends ConnectorBase {
         if (configuration == null) {
             throw new ConnectorException("no configuration provided");
         }
+        // Generate then dump historic data
+        if (shouldGenerateSampleData(_configuration.get(), configuration)) {
+
+            try {
+                SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                Date startdate = df.parse(configuration.getHistoricStartDate());
+                Date enddate = df.parse(configuration.getHistoricEndDate());
+                String start = String.valueOf(startdate.getTime());
+                String end = String.valueOf(enddate.getTime());
+                String today = df.format(new Date());
+                if (configuration.getHistoricEndDate().equals(today)) {
+                    end = String.valueOf(Instant.now().toEpochMilli());
+                }
+                logger.log(Level.INFO,
+                        "Generating sample historical data with metric name: " + configuration.getMetricName());
+                generateData(start, end, configuration.getMetricName());
+            } catch (ParseException e) {
+                logger.log(Level.INFO, "Error with data generation: " + e.getMessage());
+            }
+
+        }
         _configuration.set(configuration);
 
         // Set initial topics and local state if needed
         SDKSettings settings = new SDKSettings();
         settings.consumeTopicNames = new String[] {};
-        settings.produceTopicNames = new String[] { LIFECYCLE_INPUT_EVENTS_TOPIC };
+        settings.produceTopicNames = new String[] { LIFECYCLE_INPUT_EVENTS_TOPIC, METRICS_MANAGER_INPUT_TOPIC };
+
         return settings;
     }
 
@@ -157,6 +186,63 @@ public class ConnectorTemplate extends ConnectorBase {
         }
     }
 
+    protected void generateData(String start, String end, String metricName) {
+
+        Random random = new Random();
+        int interval = 300000;
+        Long startdate = Long.parseLong(start);
+        Long enddate = Long.parseLong(end);
+
+        String result = "{\"groups\": [\n";
+        int counter = 0;
+
+        while (startdate + interval < enddate) {
+
+            // Counter ensures cloud event payload is below Kafka max payload size of 1mb
+            if (counter < 4999) {
+
+                result += "{\"timestamp\":\"" + String.valueOf(startdate) + "\",\"resourceID\":\"" + METRIC_RESOURCE_ID
+                        + "\",\"metrics\":{\"" + metricName + "\":0." + String.valueOf(random.nextInt(999999999))
+                        + "},\"attributes\":{\"group\":\"CPU\",\"node\":\"" + METRIC_RESOURCE_ID + "\"}},\n";
+                startdate += 300000;
+                counter++;
+            } else {
+                result += "{\"timestamp\":\"" + String.valueOf(startdate) + "\",\"resourceID\":\"" + METRIC_RESOURCE_ID
+                        + "\",\"metrics\":{\"" + metricName + "\":0." + String.valueOf(random.nextInt(999999999))
+                        + "},\"attributes\":{\"group\":\"CPU\",\"node\":\"" + METRIC_RESOURCE_ID + "\"}}\n";
+
+                result += "]}";
+
+                CloudEvent ce = CloudEventBuilder.v1().withId(UUID.randomUUID().toString()).withSource(SELF_SOURCE)
+                        .withType(METRIC_GATHERED_CE_TYPE)
+                        .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
+                        .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
+                        .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
+                        .withData(Constant.JSON_CONTENT_TYPE, result.getBytes(StandardCharsets.UTF_8)).build();
+                emitCloudEvent(METRICS_MANAGER_INPUT_TOPIC, null, ce);
+                counter = 0;
+                result = "{\"groups\": [\n";
+
+            }
+
+        }
+        result += "{\"timestamp\":\"" + String.valueOf(startdate) + "\",\"resourceID\":\"" + METRIC_RESOURCE_ID
+                + "\",\"metrics\":{\"" + metricName + "\":0." + String.valueOf(random.nextInt(999999999))
+                + "},\"attributes\":{\"group\":\"CPU\",\"node\":\"" + METRIC_RESOURCE_ID + "\"}}\n";
+
+        result += "]}";
+
+        CloudEvent ce = CloudEventBuilder.v1().withId(UUID.randomUUID().toString()).withSource(SELF_SOURCE)
+                .withType(METRIC_GATHERED_CE_TYPE)
+                .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
+                .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
+                .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
+                .withData(Constant.JSON_CONTENT_TYPE, result.getBytes(StandardCharsets.UTF_8)).build();
+        emitCloudEvent(METRICS_MANAGER_INPUT_TOPIC, null, ce);
+        logger.log(Level.INFO, "Done sending sample data");
+
+    }
+
     protected void checkCPUThreshold(Configuration config) throws InterruptedException {
         String hostname = getHostName();
         String ipAddress = getIPAddress();
@@ -164,6 +250,29 @@ public class ConnectorTemplate extends ConnectorBase {
         _samplesGathered.increment();
 
         logger.log(Level.INFO, "cpu usage: " + String.valueOf(currentUsage));
+
+        // Metric
+        if (config.getEnableGatherMetrics() && config.getIsLiveData()) {
+            // Emit event
+            try {
+                MetricManagerMetric mmmEvent = newMetricGatheredEvent(config, currentUsage);
+                Map<String, ArrayList> group = new HashMap<>();
+                ArrayList<MetricManagerMetric> groupArray = new ArrayList<MetricManagerMetric>();
+                groupArray.add(mmmEvent);
+                group.put("groups", groupArray);
+                String jsonGroup = new ObjectMapper().writeValueAsString(group);
+                CloudEvent ce = CloudEventBuilder.v1().withId(mmmEvent.getId()).withSource(SELF_SOURCE)
+                        .withType(METRIC_GATHERED_CE_TYPE)
+                        .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
+                        .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
+                        .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
+                        .withData(Constant.JSON_CONTENT_TYPE, jsonGroup.getBytes(StandardCharsets.UTF_8)).build();
+                emitCloudEvent(METRICS_MANAGER_INPUT_TOPIC, null, ce);
+            } catch (JsonProcessingException error) {
+                logger.log(Level.SEVERE, "failed to construct metric gathered cloud event", error);
+                _errorsSeen.increment();
+            }
+        }
 
         // Check if threshold has been breached
         if (currentUsage < (double) config.getCpuThreshold()) {
@@ -221,6 +330,25 @@ public class ConnectorTemplate extends ConnectorBase {
         event.setResource(resource);
 
         return event;
+    }
+
+    protected MetricManagerMetric newMetricGatheredEvent(Configuration config, double value) {
+
+        MetricManagerMetric metric = new MetricManagerMetric();
+        metric.setId(UUID.randomUUID().toString());
+        metric.setResourceID(METRIC_RESOURCE_ID);
+        metric.setTimestamp(Instant.now().toEpochMilli());
+
+        Map<String, Double> metrics = new HashMap<>();
+        metrics.put(config.getMetricName(), value);
+        metric.setMetrics(metrics);
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(MetricManagerMetric.RESOURCE_GROUP_FIELD, "CPU");
+        attributes.put(MetricManagerMetric.RESOURCE_NODE_FIELD, METRIC_RESOURCE_ID);
+        metric.setAttributes(attributes);
+
+        return metric;
     }
 
     protected String getHostName() {
@@ -330,4 +458,21 @@ public class ConnectorTemplate extends ConnectorBase {
         }
         return true;
     }
+
+    protected boolean stringsEqual(String a, String b) {
+        if (a == null || b == null)
+            return a == b;
+        return a.equals(b);
+    }
+
+    protected boolean shouldGenerateSampleData(Configuration oldConfig, Configuration newConfig) {
+        if (newConfig.getIsLiveData() || oldConfig != null && oldConfig.getIsLiveData() == newConfig.getIsLiveData()
+                && stringsEqual(oldConfig.getMetricName(), newConfig.getMetricName())
+                && stringsEqual(oldConfig.getHistoricEndDate(), newConfig.getHistoricEndDate())
+                && stringsEqual(oldConfig.getHistoricStartDate(), newConfig.getHistoricStartDate())) {
+            return false;
+        }
+        return true;
+    }
+
 }
