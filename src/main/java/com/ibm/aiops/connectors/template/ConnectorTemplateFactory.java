@@ -1,7 +1,7 @@
 package com.ibm.aiops.connectors.template;
 
-import com.ibm.cp4waiops.connectors.sdk.Connector;
-import com.ibm.cp4waiops.connectors.sdk.ConnectorFactory;
+import com.ibm.aiops.connectors.sdk.Connector;
+import com.ibm.aiops.connectors.sdk.ConnectorFactory;
 
 public class ConnectorTemplateFactory implements ConnectorFactory {
 

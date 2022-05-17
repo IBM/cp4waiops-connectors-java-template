@@ -6,6 +6,12 @@
   <artifactId>java-grpc-connector-template</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
+  <repositories>
+    <repository>
+      <id>sdk repository</id>
+      <url>file:///${project.basedir}/repo</url>
+    </repository>
+  </repositories>
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -27,7 +33,7 @@
     </dependency>
     <!-- SDK -->
     <dependency>
-      <groupId>com.ibm.cp4waiops.connectors</groupId>
+      <groupId>com.ibm.watson.aiops.connectors.sdk</groupId>
       <artifactId>connectors-sdk</artifactId>
       <version>1.4.3</version> <!-- CONNECTOR_SDK_VERSION -->
     </dependency>

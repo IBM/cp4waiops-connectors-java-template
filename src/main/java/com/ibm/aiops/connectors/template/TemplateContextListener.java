@@ -8,8 +8,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import com.ibm.cp4waiops.connectors.sdk.ConnectorManager;
-import com.ibm.cp4waiops.connectors.sdk.SDKCheck;
+import com.ibm.aiops.connectors.sdk.ConnectorManager;
+import com.ibm.aiops.connectors.sdk.SDKCheck;
 
 @WebListener
 public class TemplateContextListener implements ServletContextListener {

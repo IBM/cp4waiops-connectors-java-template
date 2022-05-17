@@ -26,12 +26,12 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.aiops.connectors.bridge.ConnectorStatus;
-import com.ibm.cp4waiops.connectors.sdk.ConnectorBase;
-import com.ibm.cp4waiops.connectors.sdk.ConnectorConfigurationHelper;
-import com.ibm.cp4waiops.connectors.sdk.ConnectorException;
-import com.ibm.cp4waiops.connectors.sdk.Constant;
-import com.ibm.cp4waiops.connectors.sdk.EventLifeCycleEvent;
-import com.ibm.cp4waiops.connectors.sdk.SDKSettings;
+import com.ibm.aiops.connectors.sdk.ConnectorBase;
+import com.ibm.aiops.connectors.sdk.ConnectorConfigurationHelper;
+import com.ibm.aiops.connectors.sdk.ConnectorException;
+import com.ibm.aiops.connectors.sdk.Constant;
+import com.ibm.aiops.connectors.sdk.EventLifeCycleEvent;
+import com.ibm.aiops.connectors.sdk.SDKSettings;
 
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
