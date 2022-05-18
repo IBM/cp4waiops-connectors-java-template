@@ -8,10 +8,10 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ibm.aiops.connectors.sdk.ConnectorException;
-import com.ibm.aiops.connectors.sdk.EventLifeCycleEvent;
-import com.ibm.aiops.connectors.sdk.StatusWriter;
-import com.ibm.aiops.connectors.sdk.VaultHelper;
+import com.ibm.cp4waiops.connectors.sdk.ConnectorException;
+import com.ibm.cp4waiops.connectors.sdk.EventLifeCycleEvent;
+import com.ibm.cp4waiops.connectors.sdk.StatusWriter;
+import com.ibm.cp4waiops.connectors.sdk.VaultHelper;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;

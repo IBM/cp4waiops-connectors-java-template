@@ -2,7 +2,7 @@ package com.ibm.aiops.connectors.template;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.ibm.aiops.connectors.sdk.SDKCheck;
+import com.ibm.cp4waiops.connectors.sdk.SDKCheck;
 
 import org.eclipse.microprofile.health.Readiness;
 
