@@ -15,6 +15,9 @@ spec:
       - name: cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
         operations:
           - write
+      - name: cp4waiops-cartridge.lifecycle.input.events
+        operations:
+          - write
   schema:
     additionalProperties: false
     oneOf:
@@ -48,7 +51,7 @@ spec:
       metricName:
         type: string
         description: Name of metric to generate
-        default: Usage%  
+        default: Usage%
       isLiveData:
         type: boolean
         description: True enables live data or false enables historical
@@ -151,11 +154,11 @@ spec:
     - id: enableGatherMetrics
       apiMapping: connection_config.enableGatherMetrics
       element: toggleForm
-      defaultToggled: true   
+      defaultToggled: true
       items:
         - "{{common.Off}}"
         - "{{common.On}}"
-      itemKeys: [true, false]  
+      itemKeys: [true, false]
       description: "Enables or disables metric connector template"
       headerLabel: "Enable gathering of connector metrics"
       isRequired: true
@@ -180,12 +183,12 @@ spec:
               type: dynamic
               label: "{{common.mode}}"
               items:
-                - "{{common.Historical}}"   
-                - "{{common.Live}}"            
+                - "{{common.Historical}}"
+                - "{{common.Live}}"
               itemKeys: [false, true]
               isRequired: true
               formStep: addConnection
-              form:                     
+              form:
                 - id: false
                   rows:
                     - id: start
