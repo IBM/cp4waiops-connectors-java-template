@@ -38,12 +38,15 @@ import io.cloudevents.core.builder.CloudEventBuilder;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
+import org.json.JSONObject;
+
 public class ConnectorTemplate extends ConnectorBase {
     static final Logger logger = Logger.getLogger(ConnectorTemplate.class.getName());
 
     // Topics
     static final String LIFECYCLE_INPUT_EVENTS_TOPIC = "cp4waiops-cartridge.lifecycle.input.events";
     static final String METRICS_MANAGER_INPUT_TOPIC = "cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw";
+    static final String GENERIC_TOPOLOGY_TOPIC = "cp4waiops-cartridge.connector-generic.svc_topology.connector_report";
 
     // Self identifier
     static final URI SELF_SOURCE = URI.create("template.connectors.aiops.ibm.com/grpc-event-template");
@@ -117,7 +120,8 @@ public class ConnectorTemplate extends ConnectorBase {
         // Set initial topics and local state if needed
         SDKSettings settings = new SDKSettings();
         settings.consumeTopicNames = new String[] {};
-        settings.produceTopicNames = new String[] { LIFECYCLE_INPUT_EVENTS_TOPIC, METRICS_MANAGER_INPUT_TOPIC };
+        settings.produceTopicNames = new String[] { LIFECYCLE_INPUT_EVENTS_TOPIC, METRICS_MANAGER_INPUT_TOPIC,
+                GENERIC_TOPOLOGY_TOPIC };
 
         return settings;
     }
@@ -153,7 +157,9 @@ public class ConnectorTemplate extends ConnectorBase {
                 // Some background task that executes periodically
                 if ((System.nanoTime() - taskLastRan) / NANOSECONDS_PER_SECOND > TASK_PERIOD_S) {
                     taskLastRan = System.nanoTime();
+
                     checkCPUThreshold(config);
+                    generateTopologySampleData(config);
                 }
 
                 // Periodic status update
@@ -466,6 +472,10 @@ public class ConnectorTemplate extends ConnectorBase {
     }
 
     protected boolean shouldGenerateSampleData(Configuration oldConfig, Configuration newConfig) {
+        // If gathering metrics is not enabled, skip the checks below
+        if (!newConfig.getEnableGatherMetrics())
+            return false;
+
         if (newConfig.getIsLiveData() || oldConfig != null && oldConfig.getIsLiveData() == newConfig.getIsLiveData()
                 && stringsEqual(oldConfig.getMetricName(), newConfig.getMetricName())
                 && stringsEqual(oldConfig.getHistoricEndDate(), newConfig.getHistoricEndDate())
@@ -475,4 +485,47 @@ public class ConnectorTemplate extends ConnectorBase {
         return true;
     }
 
+    protected void generateTopologySampleData(Configuration config) {
+        if (config.getEnableTopologySampleGeneration()) {
+            logger.log(Level.INFO, "Send topology sample data");
+            /*
+             * For data to be processed by the generic topology processor, the format needs to follow the format seen
+             * below.
+             * 
+             * nodes: the resources that will show up for the user
+             * 
+             * entityTypes: can be built in entity types like "pod" or your own custom one. Custom types will not have
+             * an icon when viewed in the topology viewer
+             * 
+             * properties: properties used by the generic processor edges: defines the relationships between resources.
+             * 
+             * In this example, resource name1 and name2 are related by
+             * 
+             * { "nodes": [ { "name": "Dog Owner", "entityTypes": [ "owner", "human" ], "id": "id1", "properties": {
+             * "prop2": "value2", "prop1": "value1" }, "tags": [ "Sample Topology Data" ] }, { "name": "Dog",
+             * "entityTypes": [ "pet" ], "id": "id2", "properties": { "prop2": "value2", "prop1": "value1" }, "tags": [
+             * "Sample Topology Data" ] } ], "edges": [ { "destination": "id2", "source": "id1", "properties": {
+             * "prop2": "value2", "prop1": "value1" }, "relation": "friends" } ] }
+             * 
+             */
+
+            String uniqueIDOne = UUID.randomUUID().toString();
+            String uniqueIDTwo = UUID.randomUUID().toString();
+            JSONObject topologyJSONObj = new JSONObject("{\"nodes\":[{\"id\":\"" + uniqueIDOne
+                    + "\",\"name\":\"Dog Owner\",\"entityTypes\":[\"owner\",\"human\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]},{\"id\":\""
+                    + uniqueIDTwo
+                    + "\",\"name\":\"Dog\",\"entityTypes\":[\"pet\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]}],\"edges\":[{\"source\":\""
+                    + uniqueIDOne + "\",\"destination\":\"" + uniqueIDTwo + "\",\"relation\":\"friends\"}]}");
+
+            // The Cloud Event type needs to be the same as the topic
+            CloudEvent ce = CloudEventBuilder.v1().withId(UUID.randomUUID().toString()).withSource(SELF_SOURCE)
+                    .withType(GENERIC_TOPOLOGY_TOPIC)
+                    .withExtension(TENANTID_TYPE_CE_EXTENSION_NAME, Constant.STANDARD_TENANT_ID)
+                    .withExtension(CONNECTION_ID_CE_EXTENSION_NAME, getConnectorID())
+                    .withExtension(COMPONENT_NAME_CE_EXTENSION_NAME, getComponentName())
+                    .withData(Constant.JSON_CONTENT_TYPE, topologyJSONObj.toString().getBytes(StandardCharsets.UTF_8))
+                    .build();
+            emitCloudEvent(GENERIC_TOPOLOGY_TOPIC, null, ce);
+        }
+    }
 }

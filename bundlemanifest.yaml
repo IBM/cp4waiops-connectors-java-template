@@ -5,7 +5,7 @@ metadata:
 spec:
   prereqs:
     repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
-    branch: main
+    branch: topology
     authSecret:
       name: test-utilities-github-token
     components:
@@ -14,7 +14,7 @@ spec:
         type: kustomize
   instanced:
     repo: 'https://github.ibm.com/katamari/java-grpc-connector-template'
-    branch: main
+    branch: topology
     authSecret:
       name: test-utilities-github-token
     components:

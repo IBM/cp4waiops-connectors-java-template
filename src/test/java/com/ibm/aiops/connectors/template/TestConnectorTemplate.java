@@ -166,4 +166,31 @@ public class TestConnectorTemplate {
         _connector.updateWorkload(config);
         Assertions.assertEquals(0, _connector._threads.size(), "expected scale down to 0");
     }
+
+    @Test
+    @DisplayName("testGenericTopology")
+    void testGenericTopology() {
+        Configuration config = new Configuration();
+        config.setEnableTopologySampleGeneration(true);
+        Assertions.assertTrue(config.getEnableTopologySampleGeneration());
+
+        _connector.generateTopologySampleData(config);
+
+        // Check size of the eventQueue. After the Cloud event is emittedd
+        // it will go into that queue
+        Assertions.assertEquals(1, _eventQueue.size());
+
+        CloudEvent ce = _eventQueue.poll();
+        String cloudEventDataString = new String(ce.getData().toBytes());
+
+        // Verify the topology data
+        System.out.println("Topology sample data :" + cloudEventDataString);
+        Assertions.assertTrue(cloudEventDataString.contains("\"edges\""));
+        Assertions.assertTrue(cloudEventDataString.contains("\"nodes\""));
+
+        config.setEnableTopologySampleGeneration(false);
+        Assertions.assertFalse(config.getEnableTopologySampleGeneration());
+        _connector.generateTopologySampleData(config);
+        Assertions.assertEquals(0, _eventQueue.size());
+    }
 }

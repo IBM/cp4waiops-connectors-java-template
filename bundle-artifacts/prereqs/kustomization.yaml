@@ -4,6 +4,10 @@ kind: Kustomization
 resources:
   - connectorschema.yaml
   - microedgeconfiguration.yaml
+  - generictopologyprocessor-deployment.yaml
+  - generictopologyprocessor-service.yaml
+  - generictopologyprocessor-serviceaccount.yaml
+  - topics.yaml
 
 configurations:
   - custom-images.yaml
@@ -12,3 +16,6 @@ images:
   - name: java-grpc-connector-template
     newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template
     newTag: latest
+  - name: generic-topology-processor
+    newName: hyc-connector-framework-team-docker-local.artifactory.swg-devops.com/generic-topology-processor/generic-topology-processor
+    newTag: unreleased-main-latest
