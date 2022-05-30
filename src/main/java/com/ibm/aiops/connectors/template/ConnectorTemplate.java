@@ -512,10 +512,10 @@ public class ConnectorTemplate extends ConnectorBase {
             String uniqueIDOne = UUID.randomUUID().toString();
             String uniqueIDTwo = UUID.randomUUID().toString();
             JSONObject topologyJSONObj = new JSONObject("{\"nodes\":[{\"id\":\"" + uniqueIDOne
-                    + "\",\"name\":\"Dog Owner\",\"entityTypes\":[\"owner\",\"human\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]},{\"id\":\""
+                    + "\",\"name\":\"Alpaca Owner\",\"entityTypes\":[\"owner\",\"human\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]},{\"id\":\""
                     + uniqueIDTwo
-                    + "\",\"name\":\"Dog\",\"entityTypes\":[\"pet\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]}],\"edges\":[{\"source\":\""
-                    + uniqueIDOne + "\",\"destination\":\"" + uniqueIDTwo + "\",\"relation\":\"friends\"}]}");
+                    + "\",\"name\":\"Alpaca\",\"entityTypes\":[\"pet\"],\"properties\":{\"prop1\":\"value1\",\"prop2\":\"value2\"},\"tags\":[\"Sample Topology Data\"]}],\"edges\":[{\"source\":\""
+                    + uniqueIDOne + "\",\"destination\":\"" + uniqueIDTwo + "\",\"relation\":\"attachedTo\"}]}");
 
             // The Cloud Event type needs to be the same as the topic
             CloudEvent ce = CloudEventBuilder.v1().withId(UUID.randomUUID().toString()).withSource(SELF_SOURCE)

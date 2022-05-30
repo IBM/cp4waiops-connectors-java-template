@@ -25,7 +25,7 @@ COPY src /build/connector/src
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
-FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
+FROM icr.io/appcafe/websphere-liberty:22.0.0.3-kernel-java11-openj9-ubi
 
 USER 0
 RUN dnf install -y procps-ng && dnf clean all
@@ -36,7 +36,7 @@ COPY --chown=1001:0 container/jvm.options /config/
 
 # Add Liberty server configuration including all necessary features
 COPY --chown=1001:0  container/server.xml /config/
-RUN features.sh
+RUN configure.sh
 
 COPY --from=builder --chown=1001:0  /build/connector/target/java-grpc-connector-template.war /config/apps/
 
