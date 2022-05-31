@@ -1,7 +1,6 @@
 REGISTRY ?= hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com
 TAG ?= latest
 
-CONNECTOR_SDK_VERSION := 1.4.3
 DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
 
 ifeq ($(shell uname -s),Darwin)
@@ -20,11 +19,6 @@ docker-build:
 
 docker-push:
 	docker push $(DOCKER_IMAGE)
-
-.PHONY: download-connector-sdk
-download-connector-sdk:
-	$(SED_EXE) -i -e "s|.*CONNECTOR_SDK_VERSION.*|      <version>$(CONNECTOR_SDK_VERSION)</version> <!-- CONNECTOR_SDK_VERSION -->|" pom.xml
-	./setup-sdk.sh "v$(CONNECTOR_SDK_VERSION)"
 
 .PHONY: format
 format:
