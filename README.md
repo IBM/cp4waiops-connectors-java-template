@@ -82,6 +82,19 @@ After running `mvn liberty:run`, your connector will get the configuration from 
 1. Create a Kubernetes secret containing your GitHub credentials
 1. `oc create secret generic test-utilities-github-token --from-literal=username=<GitHub Username> --from-literal=password=<GitHub access token>`
 
+## Using your own image
+If the repo image requires authentication, and if the secret: `ibm-aiops-pull-secret` doesn't exist in OpenShift
+1. Create the secret: `ibm-aiops-pull-secret`  
+1. Then add your image server credentials to the `ibm-aiops-pull-secret` secret.  
+
+If building manually or using another build system, you can build and push the image with this script:
+```
+IMAGE=YOUR_IMAGE_LOCATION
+docker build -f container/Dockerfile -t $IMAGE .
+docker push $IMAGE
+```
+Inside both files `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-artifacts/prereqs/kustomization.yaml`. In the `images` section: change `PLACEHOLDER_REGISTRY_ADDRESS` in `newName` to your image registry location. Also inside both files change `newTag` from `latest` to whatever your images tag is.
+
 ## Troubleshooting Errors
 See the [Connector Troubleshooting](https://github.com/IBM/cp4waiops-connectors/blob/main/ConnectorTroubleshooting.md) document for resolving common problems.
 
