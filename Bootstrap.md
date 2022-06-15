@@ -1,4 +1,4 @@
-# Bootstrap Instructions
+# Bootstrap instructions
 
 Instructions for initial setup of the project
 
