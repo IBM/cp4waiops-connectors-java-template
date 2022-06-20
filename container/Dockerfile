@@ -8,10 +8,10 @@ RUN microdnf update && \
     microdnf install -y procps-ng java-11-openjdk tar && \
     microdnf clean all
 
-RUN curl -s -o /tmp/mvn.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz && \
+RUN curl -s -o /tmp/mvn.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz && \
     mkdir /tmp/mvn && \
     tar xfz /tmp/mvn.tar.gz -C /tmp/mvn && \
-    mv /tmp/mvn/apache-maven-3.8.5 /usr/local/maven
+    mv /tmp/mvn/apache-maven-3.8.6 /usr/local/maven
 
 ENV PATH="/usr/local/maven/bin:${PATH}"
 ENV MVN_HOME=/usr/local/maven

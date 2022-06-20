@@ -491,22 +491,22 @@ public class ConnectorTemplate extends ConnectorBase {
             /*
              * For data to be processed by the generic topology processor, the format needs to follow the format seen
              * below.
-             * 
+             *
              * nodes: the resources that will show up for the user
-             * 
+             *
              * entityTypes: can be built in entity types like "pod" or your own custom one. Custom types will not have
              * an icon when viewed in the topology viewer
-             * 
+             *
              * properties: properties used by the generic processor edges: defines the relationships between resources.
-             * 
+             *
              * In this example, resource name1 and name2 are related by
-             * 
+             *
              * { "nodes": [ { "name": "Dog Owner", "entityTypes": [ "owner", "human" ], "id": "id1", "properties": {
              * "prop2": "value2", "prop1": "value1" }, "tags": [ "Sample Topology Data" ] }, { "name": "Dog",
              * "entityTypes": [ "pet" ], "id": "id2", "properties": { "prop2": "value2", "prop1": "value1" }, "tags": [
              * "Sample Topology Data" ] } ], "edges": [ { "destination": "id2", "source": "id1", "properties": {
              * "prop2": "value2", "prop1": "value1" }, "relation": "friends" } ] }
-             * 
+             *
              */
 
             String uniqueIDOne = UUID.randomUUID().toString();
