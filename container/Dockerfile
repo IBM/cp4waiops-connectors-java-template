@@ -17,7 +17,6 @@ ENV PATH="/usr/local/maven/bin:${PATH}"
 ENV MVN_HOME=/usr/local/maven
 
 # Download and cache dependencies beforehand
-COPY repo /build/connector/repo
 COPY pom.xml /build/connector/
 RUN cd /build/connector && mvn dependency:go-offline -B
 

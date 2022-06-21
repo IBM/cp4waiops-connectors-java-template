@@ -35,7 +35,9 @@ To run the liberty server outside of a docker container, navigate to the top dir
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
 docker container!
 
-Execute `make test` from the `open-liberty` folder to run the tests.
+Execute `make test` in the root directory to run the tests.
+
+Execute `make docker-build` in the root directory to build your image. MModify the `Makfile` to set the environment variables.
 
 ### Setting `bootstrap.properties` values
 

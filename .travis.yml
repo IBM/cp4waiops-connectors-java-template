@@ -13,9 +13,6 @@ branches:
 stages:
   - build
 
-before_script:
-  - make download-connector-sdk
-
 install: echo skipping default mvn install step
 
 jobs:
