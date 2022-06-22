@@ -1,0 +1,22 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: generic-topology-processor
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: generic-topology-processor-tls-cert
+  labels:
+    app.kubernetes.io/name: generic-topology-processor
+spec:
+  ports:
+    - name: appconn
+      protocol: TCP
+      port: 9166
+      targetPort: 9166
+    - name: adminconn
+      protocol: TCP
+      port: 9167
+      targetPort: 9167
+  selector:
+    connector.aiops.ibm.com/name: generic-topology-processor
+  type: ClusterIP
+  sessionAffinity: None

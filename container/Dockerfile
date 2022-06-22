@@ -8,16 +8,15 @@ RUN microdnf update && \
     microdnf install -y procps-ng java-11-openjdk tar && \
     microdnf clean all
 
-RUN curl -s -o /tmp/mvn.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz && \
+RUN curl -s -o /tmp/mvn.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz && \
     mkdir /tmp/mvn && \
     tar xfz /tmp/mvn.tar.gz -C /tmp/mvn && \
-    mv /tmp/mvn/apache-maven-3.8.5 /usr/local/maven
+    mv /tmp/mvn/apache-maven-3.8.6 /usr/local/maven
 
 ENV PATH="/usr/local/maven/bin:${PATH}"
 ENV MVN_HOME=/usr/local/maven
 
 # Download and cache dependencies beforehand
-COPY repo /build/connector/repo
 COPY pom.xml /build/connector/
 RUN cd /build/connector && mvn dependency:go-offline -B
 
@@ -25,7 +24,7 @@ COPY src /build/connector/src
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
-FROM icr.io/appcafe/open-liberty:kernel-slim-java11-openj9-ubi
+FROM icr.io/appcafe/websphere-liberty:22.0.0.3-kernel-java11-openj9-ubi
 
 USER 0
 RUN dnf install -y procps-ng && dnf clean all
@@ -36,7 +35,7 @@ COPY --chown=1001:0 container/jvm.options /config/
 
 # Add Liberty server configuration including all necessary features
 COPY --chown=1001:0  container/server.xml /config/
-RUN features.sh
+RUN configure.sh
 
 COPY --from=builder --chown=1001:0  /build/connector/target/java-grpc-connector-template.war /config/apps/
 
