@@ -1,0 +1,242 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: generic-topology-processor
+  labels:
+      app: generic-topology-processor
+spec:
+  selector:
+    matchLabels:
+      connector.aiops.ibm.com/name: generic-topology-processor
+  template:
+    metadata:
+      labels:
+        connector.aiops.ibm.com/name: generic-topology-processor
+    spec:
+      initContainers:
+        - resources:
+            limits:
+              cpu: "1"
+              ephemeral-storage: 200Mi
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 10Mi
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          name: wait-for-topology
+          command:
+            - /bin/sh
+            - '-c'
+            - /opt/ibm/netcool/asm/bin/check-service-endpoint-count.sh
+          env:
+            - name: SERVICE
+              value: aiops-topology-topology
+            - name: EXPECTED_COUNT
+              value: '1'
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: instana-topology 
+      restartPolicy: Always
+      serviceAccountName: generic-topology-processor
+      schedulerName: default-scheduler
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - ppc64le
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - resources:
+            limits:
+              cpu: '1'
+              memory: 4096Mi
+            requests:
+              cpu: 200m
+              memory: 3072Mi
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9167
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: generic-topology-processor
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 9167s
+              scheme: HTTPS
+            initialDelaySeconds: 120
+            timeoutSeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 6
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace          
+            - name: INSTANA_OBSERVER_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: KAFKA_SERVER
+              valueFrom:
+                secretKeyRef:
+                  key: bootstrapServers
+                  name: aiopsedge-kafka-application-secret
+            - name: KAFKA_TLS_ENABLED
+              value: "true"
+            - name: KAFKA_AUTH_TYPE
+              valueFrom:
+                secretKeyRef:
+                  key: saslType
+                  name: aiopsedge-kafka-application-secret
+            - name: KAFKA_CLIENT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: user
+                  name: aiopsedge-kafka-application-secret
+            - name: KAFKA_CLIENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: aiopsedge-kafka-application-secret
+            - name: KAFKA_CLIENT_PASSWORD_PATH
+              value: /etc/kafka
+            - name: KAFKA_PREFIX
+              value: cp4waiops-cartridge     
+            - name: CONNECTOR_KAFKA_SERVER
+              value: iaf-system-kafka-bootstrap.cp4waiops.svc:9093
+            - name: CONNECTOR_CONFIGURATION_CR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CONNECTOR_CONFIGURATION_CR_NAME
+              value: 'instana-topology'              
+            - name: TOPOLOGY_SERVICE_HOST
+              value: aiops-topology-topology
+            - name: TOPOLOGY_SERVICE_PORT
+              value: '8080'
+            - name: GENERIC_OBSERVER_PORT
+              value: '9167'
+            - name: SERVICE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: SERVICE_NAME
+              value: generic-topology-processor.$(SERVICE_NAMESPACE).svc              
+            - name: LOG_LEVEL
+              value: INFO
+            - name: LOGGING_CONSOLE_THRESHOLD
+              value: ALL
+            - name: LOGGING_FILE_THRESHOLD
+              value: 'OFF'
+            - name: JVM_ARGS
+              value: '-XX:MaxRAMPercentage=60'
+            - name: ASM_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: aiops-topology-asm-credentials
+            - name: ASM_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: aiops-topology-asm-credentials
+            - name: AUTH_ENABLED
+              value: '1'
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+          ports:
+            - containerPort: 9166
+              protocol: TCP
+              name: appconn
+            - containerPort: 9167
+              protocol: TCP
+              name: adminconn         
+          imagePullPolicy: Always
+          volumeMounts:   
+            - mountPath: /app/security
+              name: asm-security
+              readOnly: true
+            - mountPath: /app/security/aiopsedge
+              name: aiopsedge-security
+              readOnly: true              
+            - mountPath: /var/log/itsm
+              name: logs
+            - mountPath: /opt/ibm/kafka/tls
+              name: kafka
+              readOnly: true
+          terminationMessagePolicy: FallbackToLogsOnError
+          image: generic-topology-processor
+      volumes:
+        - name: aiopsedge-security
+          projected:
+            defaultMode: 420
+            sources:
+            - secret:
+                name: aiopsedge-client-cert
+                optional: false       
+        - name: asm-security
+          projected:
+            defaultMode: 420
+            sources:
+            - secret:
+                name: aiops-topology-ca-secret
+                optional: false
+            - secret:
+                optional: false
+                name: generic-topology-processor-tls-cert                
+            - secret:
+                name: aiops-topology-custom-secrets
+                optional: true
+            - configMap:
+                name: aiops-topology-service-ca
+                optional: false
+        - name: kafka
+          secret:
+            defaultMode: 436
+            optional: false
+            secretName: aiopsedge-kafka-application-secret
+        - name: logs
+          emptyDir: {}
+      dnsPolicy: ClusterFirst
+  strategy:
+    type: RollingUpdate

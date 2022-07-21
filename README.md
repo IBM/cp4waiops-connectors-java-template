@@ -2,16 +2,6 @@
 
 Template for Java connectors based on Open Liberty
 
-## Downloading the SDK <a name="obtain-the-sdk"></a>
-
-Release versions of the sdk can be found [here](https://github.ibm.com/quicksilver/grpc-java-sdk/releases). Make sure
-that `connector/pom.xml` uses the correct version. For example, `v1.0.1` maps to `1.0.1` in the `pom.xml` file.
-
-To upgrade to another version of the SDK, modify the value of `CONNECTOR_SDK_VERSION` in the `Makefile`.
-
-1. Set the environment variable GITHUB_TOKEN to a GitHub API-key with full repo access.
-2. Run `make download-connector-sdk` from the `open-liberty` folder.
-
 ## Server Setup <a name="server-setup"></a>
 
 Ensure that the `bundlemanifest.yaml` file is updated to point at the correct Git repository and branch. In an
@@ -44,8 +34,6 @@ To run the liberty server outside of a docker container, navigate to the top dir
 `mvn liberty:run`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there are not used in the
 docker container!
-
-Run `make test` from the `open-liberty` folder to test.
 
 ### Setting `bootstrap.properties` values
 
@@ -134,14 +122,14 @@ If no alert is generated after waiting for a few minutes, ensure that at no poin
 
 `oc login` and manually confirm data has been consumed by Metric Manager with the following commands
 
-```
+```bash
 export ROUTE=$(oc get route | grep ibm-nginx-svc | awk '{print $2}')
 PASS=$(oc get secret admin-user-details -o jsonpath='{.data.initial_admin_password}' | base64 -d)
 export TOKEN=$(curl -k -X POST https://$ROUTE/icp4d-api/v1/authorize -H 'Content-Type: application/json' -d "{\"username\": \"admin\",\"password\": \"$PASS\"}" | jq .token | sed 's/\"//g')
 ```
 
 Query the Metrics API and replace <METRICNAME> with the one you used when creating your connection.
-```
+```bash
 curl -v "https://${ROUTE}/aiops/api/app/metric-api/v1/metrics?resource=database01.bigblue.com&group=CPU&metric=<METRICNAME>" --header "Authorization: Bearer ${TOKEN}" --header 'X-TenantID: cfd95b7e-3bc7-4006-a4a8-a73a79c71255' --insecure
 ```
 You can run this command after you see `Done sending sample data` in the java-grpc-connector-template pod to confirm sample data was consumed. Once you change the connection to live and query the above again, you will see one new entry every 5 minutes or so. And the values will be between 0 and 1 unless you have turned on Enable workload with high CPU usage, which will create values around 99. 
@@ -149,3 +137,147 @@ You can run this command after you see `Done sending sample data` in the java-gr
 Running the above curl command can also confirm whether you trained the data properly or not. The results should show `"anomalous":false` for low values and true for high values if you walked through the steps in the proper order. If you see a value in the 90s but with anomalous as false, then try walking through these steps again in order but with a different Metric Name, making sure that you don't turn on live data with high CPU before training.
 
 You can find a sample Metric [here](sample-metric.json)
+
+## Generic Topology Walkthrough
+The generic topology allows you to create relationships between resources for the topology viewer.
+
+
+![Resource management](/images/generic-topology01.png)
+The sample creates the resources
+
+![Topology](/images/generic-topology02.png)
+The resources have relationships
+
+The sample will start up the generic topology processor pod.
+
+To check if the pod is running:
+```bash
+oc get pods | grep generic-topology-processor
+```
+
+To check the pod logs:
+```bash
+oc logs -f $(oc get pod -l connector.aiops.ibm.com/name=generic-topology-processor -o jsonpath='{.items[0].metadata.name}')
+```
+
+
+The generic topology processor gets topology data from Kafka and inserts it into the Elastic database. In the [bundle's prereqs](bundle-artifacts/prereqs) folder, there are yaml files for configuring and deploying the processor:
+
+```yaml
+generictopologyprocessor-deployment.yaml
+generictopologyprocessor-service.yaml
+generictopologyprocessor-serviceaccount.yaml
+generictopologyprocessor-observerrole.yaml
+generictopologyprocessor-observerrolebinding.yaml
+```
+
+When the generic topology processsor is correctly configured, it will be in a running state and there should be no errors in the logs.
+
+Once it is running, the connector will communicate with the processor via Kafka. The topic is `cp4waiops-cartridge.connector-generic.svc_topology.connector_report`.
+
+- This topic has its write permissions set in the [connector schema](bundle-artifacts/prereqs/connectorschema.yaml) 
+- This topic is defined in the [topics file](bundle-artifacts/prereqs/topics.yaml) 
+- This topic is set as one that messages are produced to in the `ConnectorTemplate.java`, so the gRPC server knows the communication is on that topic
+
+### Kafka Message Format
+Example Kafka message:
+```json
+{
+  "nodes": [
+    {
+      "name": "Dog Owner",
+      "entityTypes": [
+        "owner",
+        "human"
+      ],
+      "id": "id1",
+      "properties": {
+        "prop2": "value2",
+        "prop1": "value1"
+      },
+      "tags": [
+        "Sample Topology Data"
+      ]
+    },
+    {
+      "name": "Dog",
+      "entityTypes": [
+        "pet"
+      ],
+      "id": "id2",
+      "properties": {
+        "prop2": "value2",
+        "prop1": "value1"
+      },
+      "tags": [
+        "Sample Topology Data"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "destination": "id2",
+      "source": "id1",
+      "properties": {
+        "prop2": "value2",
+        "prop1": "value1"
+      },
+      "relation": "attachedTo"
+    }
+  ]
+}
+```
+
+- Each node in `nodes` will show up as a resource
+- The `edges` defines the relationships between the nodes
+- The `id` is the unique identifier and is later referenced for the edges
+- `entityTypes` describes the type of data. There are built in types defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-entity-types) that will display an icon, otherwise a generic icon will be used
+- The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs
+
+### Known Limitations
+- Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time
+- All the data and relationships have to be sent in a single Kafka message. As a result, there are 1 MB size limitations on the Kafka messages. Paging may be implemented in the future
+
+### Cleaning Up the Topology (WARNING: Deletes All Topology Data, Use In Dev Environment Only)
+As you insert topology data, the resources can quickly fill up. To clean up the topology resources, you can run the following commands. However, this will delete ALL topology data, so do not run this on a production environment. Use this only in a development environment.
+
+As a prerequsitiie, you have to expose the elastsic route for the service `iaf-system-elasticsearch-es`, in this example, the secure route is created with name `iaf-system-elasticsearch-es-aiops`
+
+
+```bash
+CASSANDRA_USER=admin
+CASSANDRA_PASS=`oc get secret aiops-topology-cassandra-auth-secret -o jsonpath='{.data.password}' | base64 -d`
+
+ELASTIC_USER=elasticsearch-admin
+ELASTIC_PASS=`oc get secret ibm-cp-watson-aiops-elastic-admin-secret -o jsonpath='{.data.password}' | base64 -d`
+
+ELASTIC_AUTH=`echo -n $ELASTIC_USER:$ELASTIC_PASS | base64 -w 0`
+
+oc scale deployment aiops-topology-layout --replicas=0
+oc scale deployment aiops-topology-merge --replicas=0
+oc scale deployment aiops-topology-search --replicas=0
+oc scale deployment aiops-topology-status --replicas=0
+oc scale deployment aiops-topology-topology --replicas=0
+oc scale deployment aiops-topology-observer-service --replicas=0
+oc scale deployment aiopsedge-instana-topology-integrator --replicas=0
+oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=0
+sleep 30
+curl -k  --request DELETE 'https://iaf-system-elasticsearch-es-aiops.apps.beta.cp.fyre.ibm.com/aiops-searchservice_v10' \
+--header 'Authorization: Basic '$ELASTIC_AUTH
+
+oc exec -ti aiops-topology-cassandra-0 -- bash -c 'cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e "DROP KEYSPACE janusgraph;"'
+sleep 2
+oc exec -ti aiops-topology-cassandra-0 -- bash -c 'cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e "SELECT * FROM system_schema.keyspaces;"'
+
+oc scale deployment aiops-topology-layout --replicas=1
+oc scale deployment aiops-topology-merge --replicas=1
+oc scale deployment aiops-topology-search --replicas=1
+oc scale deployment aiops-topology-status --replicas=1
+oc scale deployment aiops-topology-topology --replicas=1
+oc scale deployment aiops-topology-observer-service --replicas=1
+
+sleep 300
+
+oc scale deployment aiopsedge-instana-topology-integrator --replicas=1
+oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=1
+```

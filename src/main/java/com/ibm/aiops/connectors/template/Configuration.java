@@ -11,6 +11,7 @@ public class Configuration {
     private String historicEndDate;
     private String metricName = "Usage%";
     private int numCPUWorkloadThreads = 1;
+    private boolean enableTopologySampleGeneration = false;
 
     public Configuration() {
     }
@@ -93,5 +94,13 @@ public class Configuration {
 
     public void setSeverityLevel(int severityLevel) {
         this.severityLevel = severityLevel;
+    }
+
+    public boolean getEnableTopologySampleGeneration() {
+        return enableTopologySampleGeneration;
+    }
+
+    public void setEnableTopologySampleGeneration(boolean enableTopologySampleGeneration) {
+        this.enableTopologySampleGeneration = enableTopologySampleGeneration;
     }
 }
