@@ -4,11 +4,11 @@ Template for Java connectors based on Open Liberty
 
 ## Server Setup <a name="server-setup"></a>
 
-Ensure that the `bundlemanifest.yaml` file is updated to point at the correct Git repository and branch. In an
+Ensure that the `bundlemanifest.yaml` file is updated to the point at the correct Git repository and branch. In an
 Red Hat OpenShift project where the Cloud Pak for Watson AIOps is installed, apply the `bundlemanifest.yaml` file. After
 verifying the status on the related BundleManifest and GitApp CRs, create a connection in the Data and Tool connections UI.
 
-If the connection is deployed locally to the cluster, the image needs to be updated to point at the development image.
+If the connection is deployed locally to the cluster, the image needs to be updated to point to the development image.
 If the connection is configured for microedge deployment, the script can be modified to use the development image.
 
 NOTE:
@@ -64,8 +64,8 @@ After running `mvn liberty:run`, your connector will get the configuration from 
 ## Setting the authSecret in the `bundlemanifest.yaml`
 1. Create a GitHub Authentication Secret
 1. Navigate to https://GITHUB_URL/settings/tokens
-1. Click Generate New Token
-1. Enter a description into the Note field and then click Generate Token at the bottom of the page
+1. Click **Generate New Token**
+1. Enter a description into the Note field, and then click **Generate Token** at the bottom of the page.
 1. Copy the newly generated access token
 1. Create a Kubernetes secret containing your GitHub credentials
 1. `oc create secret generic test-utilities-github-token --from-literal=username=<GitHub Username> --from-literal=password=<GitHub access token>`
@@ -75,50 +75,53 @@ If the repo image requires authentication, and if the secret: `ibm-aiops-pull-se
 1. Create the secret: `ibm-aiops-pull-secret`  
 1. Then add your image server credentials to the `ibm-aiops-pull-secret` secret.  
 
-If building manually or using another build system, you can build and push the image with this script:
+If you are building manually or using another build system, you can build and push the image with this script:
 ```
 IMAGE=YOUR_IMAGE_LOCATION
 docker build -f container/Dockerfile -t $IMAGE .
 docker push $IMAGE
 ```
-Inside both files `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-artifacts/prereqs/kustomization.yaml`. In the `images` section: change `PLACEHOLDER_REGISTRY_ADDRESS` in `newName` to your image registry location. Also, inside both files change `newTag` from `latest` to whatever your images tag is.
+In both `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-artifacts/prereqs/kustomization.yaml` files, change `PLACEHOLDER_REGISTRY_ADDRESS` in `newName` to your image registry location. Also, change `newTag` from `latest` to whatever your images tag is.
 
-## Troubleshooting Errors
+## Troubleshooting errors
 See the [Connector Troubleshooting](https://github.com/IBM/cp4waiops-connectors/blob/main/ConnectorTroubleshooting.md) document for resolving common problems.
 
-## Metric Template Walkthrough
+## Metric template walkthrough
 
 The metric template was designed to show how to create a connector that triggers metric Anomalies in the Alert Viewer.
 
 **Steps**
 1. Navigate to Data and tool connections in the UI and click Add Connection.
-2. Scroll down until you see Java gRPC Connector Template and click Add Connection and then Connect.
-3. Complete the Name field, ensure 'Enable gathering of connector metrics' is toggled to the 'On' position. Use default Metric name or type in a custom name. Select Historical mode, a Start Date (1 month prior to the end date is recommended), and End Date (Current date is recommended to generate a graph without gaps)
-Note: To run through this process again choose a different metric name than the one you used before.
-4. Click Done.
-Note: Optional Steps below
-In OpenShift you should see the java-grpc-connector-template pod created wait for the following logs to appear
-```
-5/16/22, 20:44:59:288 UTC] 00000035 ConnectorTemp I Generating sample historical data with metric name: Usage%
-[5/16/22, 20:45:01:280 UTC] 00000035 ConnectorTemp I Done sending sample data
-```
-Edit your new connection from historical to live and ensure that Enable workload with high CPU usage is still turned Off so your training data is not contaminated.
+2. Scroll down until you see Java gRPC Connector Template and click **Add Connection**, and then **Connect**.
+3. Complete the Name field, ensure 'Enable gathering of connector metrics' is toggled to the 'On' position. Use default metric name or type in a custom name. Select 'Historical mode', a Start Date (1 month prior to the end date is recommended), and End Date (Current date is recommended to generate a graph without gaps).
 
-5. Navigate to AI model management.
-6. Find Metric anomaly detection and click Set up training, Next, Next, Done
-7. Click the three dots on the Metric anomaly detection card and select Start training.
-8. Wait for training to complete.
-9. Navigate back to Manage Data and Tool Connections and select Java gRPC Connector Template then click the name of the connection you created earlier to edit.
-10. Turn the Enable workload with high CPU usage toggle to On to begin generating higher values for your metrics. And switch to Live (if optional step was skipped) and click Save.
-11. Navigate to Stories and alerts, then click Alerts.
-12. After a few minutes you will see an Alert with resource name `database01.bigblue.com` and with the name of the Metric you specified when creating the connection.
+    **Note**: To run through this process again choose a different metric name than the one you used before.
+4. Click **Done**.
+
+    **Note**: Optional Steps below
+
+    In OpenShift you should see the java-grpc-connector-template pod created wait for the following logs to appear
+    ```
+    5/16/22, 20:44:59:288 UTC] 00000035 ConnectorTemp I Generating sample historical data with metric name: Usage%
+    [5/16/22, 20:45:01:280 UTC] 00000035 ConnectorTemp I Done sending sample data
+    ```
+    Change your new connection from 'Historical' to 'Live' and ensure that 'Enable workload with high CPU usage' is still turned 'Off' so your training data is not contaminated.
+
+5. Navigate to 'AI model management'.
+6. Find Metric anomaly detection and click **Set up training**, **Next**, **Next**, and finally **Done**.
+7. Click the three dots on the 'Metric anomaly detection' card and select **Start training**.
+8. Wait for the training to complete.
+9. Navigate back to 'Manage Data and Tool Connections' and select 'Java gRPC Connector Template' then click the name of the connection you created earlier to edit.
+10. Turn the 'Enable workload with high CPU usage' toggle to 'On' to begin generating higher values for your metrics, and switch to 'Live' (if optional step was skipped) and click **Save**.
+11. Navigate to Stories and alerts, then click **Alerts**.
+12. After a few minutes you will see an Alert with resource name `database01.bigblue.com` and with the name of the metric you specified when creating the connection.
 13. Clicking on the Alert will generate a menu in the lower right with more details
-14. Uncollapse the Information tab and select Metric anomaly details and click on View expanded chart to see the full timeline.
-15. Navigate back to edit the connection and turn off the high CPU usage toggle
-16. After a few minutes the generated Metric Alert will be cleared automatically.
+14. Uncollapse the 'Information' tab and select metric anomaly details and click on **View expanded chart** to see the full timeline.
+15. Navigate back to edit the connection and turn off the high CPU usage toggle.
+16. After a few minutes the generated metric alert will be cleared automatically.
 
 **Debugging**
-If no alert is generated after waiting for a few minutes, ensure that at no point you toggled Enable workload with high CPU usage to On. 
+If no alert is generated after waiting for a few minutes, ensure that at no point you toggled 'Enable workload with high CPU usage' to 'On'. 
 
 `oc login` and manually confirm data has been consumed by Metric Manager with the following commands
 
@@ -132,13 +135,13 @@ Query the Metrics API and replace <METRICNAME> with the one you used when creati
 ```bash
 curl -v "https://${ROUTE}/aiops/api/app/metric-api/v1/metrics?resource=database01.bigblue.com&group=CPU&metric=<METRICNAME>" --header "Authorization: Bearer ${TOKEN}" --header 'X-TenantID: cfd95b7e-3bc7-4006-a4a8-a73a79c71255' --insecure
 ```
-You can run this command after you see `Done sending sample data` in the java-grpc-connector-template pod to confirm sample data was consumed. Once you change the connection to live and query the above again, you will see one new entry every 5 minutes or so. And the values will be between 0 and 1 unless you have turned on Enable workload with high CPU usage, which will create values around 99. 
+You can run this command after you see `Done sending sample data` in the java-grpc-connector-template pod to confirm sample data was consumed. Once you change the connection to 'live' and query the above again, you will see one new entry every 5 minutes or so. The values will be between 0 and 1 unless you have turned on 'Enable workload with high CPU usage', which will create values around 99. 
 
-Running the above curl command can also confirm whether you trained the data properly or not. The results should show `"anomalous":false` for low values and true for high values if you walked through the steps in the proper order. If you see a value in the 90s but with anomalous as false, then try walking through these steps again in order but with a different Metric Name, making sure that you don't turn on live data with high CPU before training.
+Running the above curl command can also confirm whether you trained the data properly or not. The results should show `"anomalous":false` for low values and 'true' for high values if you walked through the steps in the proper order. If you see a value in the 90s but with anomalous as false, then try walking through these steps again in order, but with a different metric Name, making sure that you don't turn on live data with high CPU before training.
 
 You can find a sample Metric [here](sample-metric.json)
 
-## Generic Topology Walkthrough
+## Generic topology walkthrough
 The generic topology allows you to create relationships between resources for the topology viewer.
 
 
@@ -155,7 +158,7 @@ To check if the pod is running:
 oc get pods | grep generic-topology-processor
 ```
 
-To check the pod logs:
+Run the following command to check the pod logs:
 ```bash
 oc logs -f $(oc get pod -l connector.aiops.ibm.com/name=generic-topology-processor -o jsonpath='{.items[0].metadata.name}')
 ```
@@ -171,7 +174,7 @@ generictopologyprocessor-observerrole.yaml
 generictopologyprocessor-observerrolebinding.yaml
 ```
 
-When the generic topology processsor is correctly configured, it will be in a running state and there should be no errors in the logs.
+When the generic topology processsor is correctly configured, it will be in a running state, and there shouldn't be errors in the logs.
 
 Once it is running, the connector will communicate with the processor via Kafka. The topic is `cp4waiops-cartridge.connector-generic.svc_topology.connector_report`.
 
@@ -229,19 +232,22 @@ Example Kafka message:
 ```
 
 - Each node in `nodes` will show up as a resource
-- The `edges` defines the relationships between the nodes
+- The `edges` define the relationships between the nodes
 - The `id` is the unique identifier and is later referenced for the edges
 - `entityTypes` describes the type of data. There are built in types defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-entity-types) that will display an icon, otherwise a generic icon will be used
-- The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs
+- The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs.
 
-### Known Limitations
-- Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time
-- All the data and relationships have to be sent in a single Kafka message. As a result, there are 1 MB size limitations on the Kafka messages. Paging may be implemented in the future
+### Known limitations
+- Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time.
+- All the data and relationships have to be sent in a single Kafka message. As a result, there are 1 MB size limitations on the Kafka messages. Paging may be implemented in the future.
 
-### Cleaning Up the Topology (WARNING: Deletes All Topology Data, Use In Dev Environment Only)
+### Cleaning op the topology 
+
+**WARNING**: Deletes all topology data, use in Dev environment only
+
 As you insert topology data, the resources can quickly fill up. To clean up the topology resources, you can run the following commands. However, this will delete ALL topology data, so do not run this on a production environment. Use this only in a development environment.
 
-As a prerequsitiie, you have to expose the elastsic route for the service `iaf-system-elasticsearch-es`, in this example, the secure route is created with name `iaf-system-elasticsearch-es-aiops`
+As a prerequsitiie, you have to expose the elastsic route for the service `iaf-system-elasticsearch-es`. In this example, the secure route is created with name `iaf-system-elasticsearch-es-aiops`
 
 
 ```bash
