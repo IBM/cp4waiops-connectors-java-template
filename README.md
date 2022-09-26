@@ -69,7 +69,7 @@ After running `mvn liberty:run`, your connector will get the configuration from 
 1. Create a GitHub Authentication Secret
 1. Navigate to https://GITHUB_URL/settings/tokens
 1. Click Generate New Token
-1. Enter a description into the Note field and then click Generate Token at the bottom of the page
+1. Enter a description into the Note field, select repo scope, and then click Generate Token at the bottom of the page
 1. Copy the newly generated access token
 1. Create a Kubernetes secret containing your GitHub credentials
 1. `oc create secret generic test-utilities-github-token --from-literal=username=<GitHub Username> --from-literal=password=<GitHub access token>`
@@ -90,18 +90,24 @@ Inside both files `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-
 ## Troubleshooting Errors
 See the [Connector Troubleshooting](https://github.com/IBM/cp4waiops-connectors/blob/main/ConnectorTroubleshooting.md) document for resolving common problems.
 
-## Metric Template Walkthrough
+## Metric Template Walkthrough and Development
 
 The metric template was designed to show how to create a connector that triggers metric Anomalies in the Alert Viewer.
+
+**Note:** The metric values are dictated by the CPU Usage toggle and assigned to the Metric name specified in the UI. The Enable workload with high CPU usage toggle is provided in this sample ConnectorSchema template in order to easily manipulate the data values for demonstration purposes. This toggle should not be used in your ConnectorSchema, as you should collect and transmit real data.
 
 **Steps**
 1. Navigate to Data and tool connections in the UI and click Add Connection.
 2. Scroll down until you see Java gRPC Connector Template and click Add Connection and then Connect.
 3. Fill out the Name field, ensure Enable gathering of connector metrics is toggled to the On position. Use default Metric name or type in a custom name. Select Historical mode, a Start Date (1 month prior to the end date is recommended), and End Date (Current date is recommended to generate a graph without gaps)
-Note: To run through this process again choose a different metric name than the one you used before.
+
+**Note:** To run through this process again choose a different metric name that was not used previously.
+
 4. Click Done.
-Note: Optional Steps below
-In OpenShift you should see the java-grpc-connector-template pod created wait for the following logs to appear
+
+**Note:** Optional Step below to ensure there is no gap in the metric data timeline 
+
+In OpenShift you should see the java-grpc-connector-template pod created, wait for the following logs to appear
 ```
 5/16/22, 20:44:59:288 UTC] 00000035 ConnectorTemp I Generating sample historical data with metric name: Usage%
 [5/16/22, 20:45:01:280 UTC] 00000035 ConnectorTemp I Done sending sample data
@@ -113,16 +119,17 @@ Edit your new connection from historical to live and ensure Enable workload with
 7. Click the three dots on the Metric anomaly detection card and select Start training.
 8. Wait for training to complete.
 9. Navigate back to Manage Data and Tool Connections and select Java gRPC Connector Template then the click on the name of the connection you created earlier to edit.
-10. Turn the Enable workload with high CPU usage toggle to On to begin generating higher values for your metrics. And switch to Live (if optional step was skipped) and click Save.
+10. Turn the Enable workload with high CPU usage toggle to On to begin generating higher values for your metrics. And switch to Live (if optional step was skipped) and click Save, a new metric value will be generated and sent every 5 minutes.
 11. Navigate to Stories and alerts, then click Alerts.
 12. After a few minutes you will see an Alert with resource name `database01.bigblue.com` and with the name of the Metric you specified when creating the connection.
 13. Clicking on the Alert will generate a menu in the lower right with more details
 14. Uncollapse the Information tab and select Metric anomaly details and click on View expanded chart to see the full timeline.
 15. Navigate back to edit the connection and turn off the high CPU usage toggle
-16. After a few minutes the generated Metric Alert will be cleared automatically.
+16. After the next 5 minute interval the generated Metric Alert will be cleared automatically, refresh the page to see the alert disappear.
 
 **Debugging**
-If no alert is generated after waiting for a few minutes, ensure that at no point you toggled Enable workload with high CPU usage to On. 
+
+If no alert is generated after waiting for a few minutes, ensure that at no point before training the data that you toggled Enable workload with high CPU usage to On. 
 
 `oc login` and manually confirm data has been consumed by Metric Manager with the following commands
 
@@ -136,11 +143,18 @@ Query the Metrics API and replace <METRICNAME> with the one you used when creati
 ```bash
 curl -v "https://${ROUTE}/aiops/api/app/metric-api/v1/metrics?resource=database01.bigblue.com&group=CPU&metric=<METRICNAME>" --header "Authorization: Bearer ${TOKEN}" --header 'X-TenantID: cfd95b7e-3bc7-4006-a4a8-a73a79c71255' --insecure
 ```
-You can run this command after you see `Done sending sample data` in the java-grpc-connector-template pod to confirm sample data was consumed. Once you change the connection to live and query the above again, you will see one new entry every 5 minutes or so. And the values will be between 0 and 1 unless you have turned on Enable workload with high CPU usage, which will create values around 99. 
+You can run this command after you see `Done sending sample data` in the java-grpc-connector-template pod to confirm the historic sample data was consumed. Once you change the connection to live and query the above again, you will see one new entry every 5 minutes or so. And the values will be between 0 and 1 unless you have turned on Enable workload with high CPU usage, which will create values around 99. 
 
 Running the above curl command can also confirm whether you trained the data properly or not. The results should show `"anomalous":false` for low values and true for high values if you walked through the steps in the proper order. If you see a value in the 90s but with anomalous as false, then try walking through these steps again in order but with a different Metric Name, making sure you don't turn on live data with high CPU before training.
 
-You can find a sample Metric [here](sample-metric.json)
+**Development**
+
+- You can find a sample Metric with the proper JSON format [here](sample-metric.json) 
+- Send cloud events to the proper kafka topic: `cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw`
+- Cloud events must have a payload that complies with Kafka's max payload size of 1mb
+- The tenant must be sent with the payload. Currently the only tenant supported in AIOps is `cfd95b7e-3bc7-4006-a4a8-a73a79c71255`
+- Further MM documentation that was used to develop this template can be found [here](https://github.ibm.com/katamari/architecture/blob/master/feature-specs/metrics-anomaly/Testing.md)
+
 
 ## Generic Topology Walkthrough
 The generic topology allows you to create relationships between resources for the topology viewer.

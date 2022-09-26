@@ -36,6 +36,9 @@ waitForFile "$keyFilename"
 PASS=$(head -c 128 /dev/urandom | base64 -w 0)
 echo "$PASS" > "$keystorePassFilename"
 
+echo `ls $DST_CERT_DIR`
+rm -f $keystoreFilename
+
 echo "importing root CAs to keystore"
 keytool -importkeystore \
     -srckeystore /opt/java/openjdk/lib/security/cacerts \

@@ -94,10 +94,11 @@ public class ConnectorTemplate extends ConnectorBase {
         if (configuration == null) {
             throw new ConnectorException("no configuration provided");
         }
-        // Generate then dump historic data
+        // Generate then dump sample historical metric data
         if (shouldGenerateSampleData(_configuration.get(), configuration)) {
 
             try {
+                // Convert dates to epoch ms format
                 SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                 Date startdate = df.parse(configuration.getHistoricStartDate());
                 Date enddate = df.parse(configuration.getHistoricEndDate());
@@ -472,7 +473,7 @@ public class ConnectorTemplate extends ConnectorBase {
     }
 
     protected boolean shouldGenerateSampleData(Configuration oldConfig, Configuration newConfig) {
-        // If gathering metrics is not enabled, skip the checks below
+        // If gathering metrics is disabled, skip the checks below
         if (!newConfig.getEnableGatherMetrics())
             return false;
 

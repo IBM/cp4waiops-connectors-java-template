@@ -195,7 +195,7 @@ spec:
               label: "Metric name"
               placeholder: "Usage%"
               defaultValue: Usage%
-              helperText: "Specify the name of the generated metric data."
+              helperText: "Assign a name to the generated metric data."
               apiMapping: connection_config.metricName
               formStep: addConnection
               isRequired: true

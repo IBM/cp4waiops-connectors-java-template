@@ -24,7 +24,7 @@ COPY src /build/connector/src
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
-FROM icr.io/appcafe/websphere-liberty:22.0.0.3-kernel-java11-openj9-ubi
+FROM icr.io/appcafe/websphere-liberty:22.0.0.9-kernel-java11-openj9-ubi
 
 USER 0
 RUN dnf install -y procps-ng && dnf clean all
