@@ -1,0 +1,540 @@
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest01
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest02
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest03
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template  
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest04
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest05
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest06
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest07
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest08
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest09
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest10
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest11
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest12
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest13
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template  
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest14
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest15
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest16
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest17
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest18
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest19
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest20
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest21
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest22
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest23
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template  
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest24
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest25
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest26
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest27
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest28
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest29
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template
+---
+apiVersion: connectors.aiops.ibm.com/v1beta1
+kind: ConnectorConfiguration
+metadata:
+  name: perftest30
+spec:
+  config:
+    isLiveData: true
+    cpuThreshold: 80
+    enableGatherMetrics: true
+    severityLevel: 6
+    expirySeconds: 300
+    numCPUWorkloadThreads: 1
+    enableTopologySampleGeneration: false
+    enableCPUHeavyWorkload: false
+    metricName: Usage%
+  deploymentType: local
+  type: java-grpc-connector-template        
