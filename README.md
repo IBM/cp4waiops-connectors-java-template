@@ -299,3 +299,18 @@ sleep 300
 oc scale deployment aiopsedge-instana-topology-integrator --replicas=1
 oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=1
 ```
+
+**Performance Testing**
+It is a good idea to test your connector when many exist. For example:
+
+1. Make sure your `pull-secret` or 
+2. Make sure your GitHub pull secret is created. If not, run `oc create secret generic test-utilities-github-token --from-literal=username=<USERNAME> --from-literal=password=<GITHUB TOKEN>`
+3. Deploy the bundle `bundlemnfest.yaml` via `oc apply -f bundlemanifest.yaml`
+4. Wait for the bundle to go to `Configured`. Use a command like:
+```
+oc get BundleManifest | grep java-grpc
+java-grpc-connector-template   Configured
+```
+5. Create a yaml file with many `ConnectorConfigurations`. See `connectorconfigurationperftest.yaml`
+6. `oc apply -f connectorconfigurationperftest.yaml` and see all the pods starting
+7. `oc delete -f connectorconfigurationperftest.yaml` to cleanup
