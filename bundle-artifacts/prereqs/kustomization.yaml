@@ -20,7 +20,7 @@ images:
     newTag: latest
   - name: generic-topology-processor
     newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
-    digest: sha256:16a936ef8e0b67ad7511ae3d1590f1f568a06dba51761e6cfd0a82cb5c60a4aa
+    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
   - name: instana-topology
     newName: cp.icr.io/cp/cp4waiops/instana-topology
-    digest: sha256:ebb68df8e8d2a9e964589e54ea5bf9cbe66c7841a35045dfd01e80ee1cefbc37
+    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
