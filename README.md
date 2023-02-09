@@ -65,6 +65,51 @@ connector-template.id="<UUID>"
 
 After running `mvn liberty:run`, your connector will get the configuration from the gRPC server.
 
+### Setting topology images
+In `bundle-artifacts/connector/prereqs/kustomization.yaml`, the images:
+```
+  - name: generic-topology-processor
+    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
+    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
+  - name: instana-topology
+    newName: cp.icr.io/cp/cp4waiops/instana-topology
+    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
+```
+
+Needs the digest from the install to replace `REPLACE_WITH_DIGEST_FROM_INSTALL`
+
+The digest can be found via:
+```
+oc get ClusterServiceVersion | grep aiopsedge-operator
+aiopsedge-operator.v3.6.2-rc0-202302072143             IBM Watson AIOps Edge                              3.6.2-rc0-202302072143                                            Succeeded
+```
+
+With that ClusterVersion, use describe:
+```
+oc describe ClusterServiceVersion aiopsedge-operator.v3.6.2-rc0-202302072143
+```
+
+Look for these two entries:
+```
+olm.relatedImage.generic-topology-processor:
+  cp.icr.io/cp/cp4waiops/generic-topology-processor@sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
+```
+
+```
+olm.relatedImage.instana-topology:
+  cp.icr.io/cp/cp4waiops/instana-topology@sha256:22b01242b28f77f45caf65be79e9979995da547fb4ee52e6d952142b9c68eeb9
+```
+
+Update the `kustomization.yaml` with:
+```
+  - name: generic-topology-processor
+    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
+    digest: sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
+  - name: instana-topology
+    newName: cp.icr.io/cp/cp4waiops/instana-topology
+    digest: sha256:22b01242b28f77f45caf65be79e9979995da547fb4ee52e6d952142b9c68eeb9
+```
+
 ## Setting the authSecret in the `bundlemanifest.yaml`
 1. Create a GitHub Authentication Secret
 1. Navigate to https://GITHUB_URL/settings/tokens
@@ -155,6 +200,36 @@ Running the above curl command can also confirm whether you trained the data pro
 - The tenant must be sent with the payload. Currently the only tenant supported in AIOps is `cfd95b7e-3bc7-4006-a4a8-a73a79c71255`
 - Further MM documentation that was used to develop this template can be found [here](https://github.ibm.com/katamari/architecture/blob/master/feature-specs/metrics-anomaly/Testing.md)
 
+## Performance Recommendations
+If your connector has high loads or your cluster has high loads of data, there are two problems that can occur.
+
+1. Retry for status setting status
+   Your connector's status could be incorrect if the connector bridge was not able to get the status correctly if the cluster is overloaded.
+
+   The API `emitStatus(ConnectorStatus.Phase.Running, StatusTTL);` returns a boolean value. If it is `false`, you should try to send again on a delay and ensure the return value is `true`.
+
+   Your connector should also send the status within a 5 minute interval, even if the status did not change. If a status is not emit to the connector bridge for too long, the server will mark the connection as `Unknown`.
+
+2. Query the SDK queues for preventing Out Of Memory errors
+   The connector bridge and connector prevent data loss by retrying cloud events. The connector SDK will retry the cloud event when `emitCloudEvent` is called until the event has been verified.
+
+   There are two queues that keep track of these cloud events before they are removed.
+
+   First, is the cloud event queue, which can be queried via `ConnectorBase`'s `getEventQueueSize()`. This queue tracks events that go into `emitCloudEvent` that has not been sent to the connector bridge yet. Once it attempts a send, the cloud event goes into the unverified queue, that can be queried via `ConnectorBase`'s `getUnverifiedCount()`. You can limit the collection of data of both these queues to prevent Out Of Memory errors. For example, in the snippet below, I monitor the unverified count and stop collecting data when the queue gets to 20. I'll keep waiting until it lowers again. If Kafka is down, the verification doesn't happen, so the unverified queue can grow indefinitely until Kafka is back up again and the connector bridge can communicate with the connector again. You can choose to limit based on the `getEventQueueSize()` too, which is not shown below. If you throttle by the unverified count, it is sufficient as long as you stop emitting cloud events and you save enough space for the event queue to get populated a bit.
+
+  ```java
+  for (int i=0;i<40;i++){
+      logger.log(Level.INFO, "Queue size: " + this.getEventQueueSize());
+      int unverifiedCount = this.getUnverifiedCount();
+      logger.log(Level.INFO, "Unverified count: " + this.getUnverifiedCount());
+
+      if (unverifiedCount <= 20){
+          logger.log(Level.INFO, "Emitting event since unverifiedCount: " + unverifiedCount);
+          // This will push into Kafka, but the ce_type is purposely wrong so it doens't get processed by the Flink
+          emitCloudEvent(SNOW_TOPIC_PROBLEMS, null, createEvent(0L, "com.ibm.sdlc.snow.problem.discovered.fake", fileStr, new URI("http://example.org")));
+      }
+  }
+  ```
 
 ## Generic Topology Walkthrough
 The generic topology allows you to create relationships between resources for the topology viewer.
