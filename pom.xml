@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.ibm.cp4waiops.connectors</groupId>
       <artifactId>connectors-sdk</artifactId>
-      <version>1.4.3</version> <!-- CONNECTOR_SDK_VERSION -->
+      <version>1.4.13</version> <!-- CONNECTOR_SDK_VERSION -->
     </dependency>
     <!-- CloudEvent object and associated builder -->
     <dependency>
@@ -66,11 +66,11 @@
       <plugin>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-plugin</artifactId>
-        <version>3.3.4</version>
+        <version>3.7.1</version>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.10.1</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
