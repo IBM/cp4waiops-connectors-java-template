@@ -88,7 +88,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthcheck
-              port: 9167s
+              port: 9167
               scheme: HTTPS
             initialDelaySeconds: 120
             timeoutSeconds: 3
