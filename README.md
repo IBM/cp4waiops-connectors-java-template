@@ -327,6 +327,10 @@ Example Kafka message:
 - `entityTypes` describes the type of data. There are built in types defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-entity-types) that will display an icon, otherwise a generic icon will be used
 - The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs
 
+### Maintenance
+- When Liberty updates a supported version, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile)
+- When Maven updates, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile) needs to have the binary updated
+
 ### Known Limitations
 - Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time
 - All the data and relationships have to be sent in a single Kafka message. As a result, there are 1 MB size limitations on the Kafka messages. Paging may be implemented in the future

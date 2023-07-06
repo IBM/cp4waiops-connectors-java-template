@@ -102,7 +102,7 @@ spec:
     - "{{connector.common.category.events}}"
     url: https://ibm.biz/int-github
     isObserver: false
-    apiAdaptor: connection
+    apiAdaptor: grpc
     datasourceType: events
     sidePanelTitle: "Java gRPC Connector Template"
     sidePanelDescription: "A sample template that submits events to the Connector Lifecycle Event Manager"
@@ -112,6 +112,7 @@ spec:
     hasOptionalConfig: false
     hasOptionalText: false
     hasAIModelType: false
+    deploymentType: ["local", "remote"]
     formSteps:
     - step:
         id: addConnection

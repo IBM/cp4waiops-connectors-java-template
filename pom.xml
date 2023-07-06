@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ibm.aiops.connectors.event-template</groupId>
   <artifactId>java-grpc-connector-template</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.ibm.cp4waiops.connectors</groupId>
       <artifactId>connectors-sdk</artifactId>
-      <version>1.4.13</version> <!-- CONNECTOR_SDK_VERSION -->
+      <version>1.4.18</version> <!-- CONNECTOR_SDK_VERSION -->
     </dependency>
     <!-- CloudEvent object and associated builder -->
     <dependency>
@@ -40,7 +40,7 @@
     <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20220320</version>
+        <version>20230618</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
