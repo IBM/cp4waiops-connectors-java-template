@@ -14,9 +14,7 @@
 
   <webApplication location="java-grpc-connector-template.war" contextRoot="/" />
 
-  <!-- info level logging for production -->
-  <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="info" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=info" />
-  <!-- trace logging for debugging, do NOT ship with this enabled -->
-  <!-- <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="info" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=all" /> -->
+  <!-- fine level logging. In production, decrease this level of tracing for improved performance -->
+  <logging consoleFormat="simple" consoleSource="message,trace" consoleLogLevel="fine" traceFileName="stdout" traceFormat="BASIC" traceSpecification="com.ibm.aiops.connectors.*=info:com.ibm.cp4waiops.connectors.*=all" />
 
 </server>

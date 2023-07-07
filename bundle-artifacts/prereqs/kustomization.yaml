@@ -9,7 +9,8 @@ resources:
   - generictopologyprocessor-serviceaccount.yaml
   - generictopologyprocessor-observerrole.yaml
   - generictopologyprocessor-observerrolebinding.yaml
-  - topics.yaml
+  # If topics need to be defined, look at the topics.yaml file as an example
+  # - topics.yaml
 
 configurations:
   - custom-images.yaml
