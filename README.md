@@ -61,6 +61,7 @@ grpc-bridge.client-secret="<SECRET>"
 Get the UUID of the `ConnectorConfiguration` instance that is created when you make a connection
 ```
 connector-template.id="<UUID>"
+grpc-bridge.id="<UUID>"
 ```
 
 After running `mvn liberty:run`, your connector will get the configuration from the gRPC server.
