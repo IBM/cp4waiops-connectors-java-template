@@ -28,8 +28,6 @@ components:
 
 ## Development
 
-First [obtain the sdk](#obtain-the-sdk).
-
 To run the liberty server outside of a docker container, navigate to the top directory and run
 `mvn liberty:run`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
@@ -61,6 +59,7 @@ grpc-bridge.client-secret="<SECRET>"
 Get the UUID of the `ConnectorConfiguration` instance that is created when you make a connection
 ```
 connector-template.id="<UUID>"
+grpc-bridge.id="<UUID>"
 ```
 
 After running `mvn liberty:run`, your connector will get the configuration from the gRPC server.
