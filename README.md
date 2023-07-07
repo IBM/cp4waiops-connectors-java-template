@@ -28,6 +28,8 @@ components:
 
 ## Development
 
+First [obtain the sdk](#obtain-the-sdk).
+
 To run the liberty server outside of a docker container, navigate to the top directory and run
 `mvn liberty:run`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
@@ -59,7 +61,6 @@ grpc-bridge.client-secret="<SECRET>"
 Get the UUID of the `ConnectorConfiguration` instance that is created when you make a connection
 ```
 connector-template.id="<UUID>"
-grpc-bridge.id="<UUID>"
 ```
 
 After running `mvn liberty:run`, your connector will get the configuration from the gRPC server.
@@ -325,6 +326,10 @@ Example Kafka message:
 - The `id` is the unique identifier and is later referenced for the edges
 - `entityTypes` describes the type of data. There are built in types defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-entity-types) that will display an icon, otherwise a generic icon will be used
 - The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs
+
+### Maintenance
+- When Liberty updates a supported version, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile)
+- When Maven updates, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile) needs to have the binary updated
 
 ### Known Limitations
 - Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time
