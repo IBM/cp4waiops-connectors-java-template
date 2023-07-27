@@ -1,27 +1,14 @@
 ## TODO: Add license
 
 ## Build application
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest as builder
+FROM registry.access.redhat.com/ubi8/openjdk-11:latest as builder
 WORKDIR /build
 
-RUN microdnf update && \
-    microdnf install -y procps-ng java-11-openjdk tar && \
-    microdnf clean all
-
-# Use https://archive.apache.org/dist/maven/maven-3/, which has older versions that some mirrors do not have
-RUN curl -s -o /tmp/mvn.tar.gz https://archive.apache.org/dist/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz && \
-    mkdir /tmp/mvn && \
-    tar xfz /tmp/mvn.tar.gz -C /tmp/mvn && \
-    mv /tmp/mvn/apache-maven-3.9.0 /usr/local/maven
-
-ENV PATH="/usr/local/maven/bin:${PATH}"
-ENV MVN_HOME=/usr/local/maven
-
 # Download and cache dependencies beforehand
-COPY pom.xml /build/connector/
+COPY --chown=jboss:jboss pom.xml /build/connector/
 RUN cd /build/connector && mvn dependency:go-offline -B
 
-COPY src /build/connector/src
+COPY --chown=jboss:jboss . /build/connector
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
