@@ -1,4 +1,4 @@
-REGISTRY ?= PLACEHOLDER_REGISTRY_ADDRESS
+REGISTRY ?= hyc-connector-framework-team-integrations-docker-local.artifactory.swg-devops.com
 TAG ?= latest
 
 DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
