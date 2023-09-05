@@ -17,7 +17,7 @@ spec:
       - name: serviceport
         value: '9166'
       - name: servicepath
-        value: '/1.0/cp4waiops-cartridge.generic-observer/jobs'
+        value: '/1.0/generic-observer/jobs'
       - name: jobpostpath
         value: '/listen'
       - name: mapping
@@ -30,7 +30,7 @@ spec:
       - name: cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
         operations:
           - write
-      - name: cp4waiops-cartridge.connector-generic.svc_topology.connector_report
+      - name: cp4waiops-cartridge.connector-generic.generic_topology.connector_report
         operations:
           - write
       - name: cp4waiops-cartridge.lifecycle.input.events

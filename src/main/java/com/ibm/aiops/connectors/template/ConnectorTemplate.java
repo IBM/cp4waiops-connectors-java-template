@@ -46,7 +46,7 @@ public class ConnectorTemplate extends ConnectorBase {
     // Topics
     static final String LIFECYCLE_INPUT_EVENTS_TOPIC = "cp4waiops-cartridge.lifecycle.input.events";
     static final String METRICS_MANAGER_INPUT_TOPIC = "cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw";
-    static final String GENERIC_TOPOLOGY_TOPIC = "cp4waiops-cartridge.connector-generic.svc_topology.connector_report";
+    static final String GENERIC_TOPOLOGY_TOPIC = "cp4waiops-cartridge.connector-generic.generic_topology.connector_report";
 
     // Self identifier
     static final URI SELF_SOURCE = URI.create("template.connectors.aiops.ibm.com/grpc-event-template");

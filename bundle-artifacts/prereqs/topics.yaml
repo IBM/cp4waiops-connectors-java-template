@@ -2,11 +2,11 @@
 apiVersion: connectors.aiops.ibm.com/v1beta1
 kind: AIOpsKafkaTopic
 metadata:
-  name: topology-connector-report
+  name: topology-connector-report-java-template
 # Example topic definition. Make sure this topic isn't defined by another connector or by CP4WAIOps.
 # An existing conflict with cause an error in Events. For example:
 #
 # Deployables: failed to apply connector deployment yaml to cluster: attempted to overwrite resource owned by another instance: 
 # connectors.aiops.ibm.com/v1beta1, Kind=AIOpsKafkaTopic: topology-connector-report  
 spec:
-  topicName: cp4waiops-cartridge.connector-generic.svc_topology.connector_report
+  topicName: cp4waiops-cartridge.connector-generic.generic_topology.connector_report
