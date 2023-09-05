@@ -44,7 +44,7 @@ spec:
             allowPrivilegeEscalation: false
           imagePullPolicy: Always
           terminationMessagePolicy: File
-          image: instana-topology 
+          image: generic-topology-processor
       restartPolicy: Always
       serviceAccountName: generic-topology-processor
       schedulerName: default-scheduler
@@ -133,6 +133,8 @@ spec:
                   name: aiopsedge-kafka-application-secret
             - name: KAFKA_CLIENT_PASSWORD_PATH
               value: /etc/kafka
+            - name: CARTRIDGE_NAME
+              value: cp4waiops-cartridge              
             - name: KAFKA_PREFIX
               value: cp4waiops-cartridge     
             - name: CONNECTOR_KAFKA_SERVER

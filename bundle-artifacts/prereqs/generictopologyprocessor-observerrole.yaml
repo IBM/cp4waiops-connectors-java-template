@@ -9,3 +9,10 @@ rules:
   - endpoints
   verbs:
   - get
+- apiGroups:
+  - connectors.aiops.ibm.com
+  resources:
+  - connectorconfigurations
+  verbs:
+  - get
+  - list    
