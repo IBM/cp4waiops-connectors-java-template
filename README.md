@@ -72,9 +72,6 @@ In `bundle-artifacts/connector/prereqs/kustomization.yaml`, the images:
   - name: generic-topology-processor
     newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
     digest: REPLACE_WITH_DIGEST_FROM_INSTALL
-  - name: instana-topology
-    newName: cp.icr.io/cp/cp4waiops/instana-topology
-    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
 ```
 
 Needs the digest from the install to replace `REPLACE_WITH_DIGEST_FROM_INSTALL`
@@ -90,15 +87,10 @@ With that ClusterVersion, use describe:
 oc describe ClusterServiceVersion aiopsedge-operator.v3.6.2-rc0-202302072143
 ```
 
-Look for these two entries:
+Look for this entry:
 ```
 olm.relatedImage.generic-topology-processor:
   cp.icr.io/cp/cp4waiops/generic-topology-processor@sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
-```
-
-```
-olm.relatedImage.instana-topology:
-  cp.icr.io/cp/cp4waiops/instana-topology@sha256:22b01242b28f77f45caf65be79e9979995da547fb4ee52e6d952142b9c68eeb9
 ```
 
 Update the `kustomization.yaml` with:
@@ -106,9 +98,6 @@ Update the `kustomization.yaml` with:
   - name: generic-topology-processor
     newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
     digest: sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
-  - name: instana-topology
-    newName: cp.icr.io/cp/cp4waiops/instana-topology
-    digest: sha256:22b01242b28f77f45caf65be79e9979995da547fb4ee52e6d952142b9c68eeb9
 ```
 
 ## Setting the authSecret in the `bundlemanifest.yaml`
@@ -340,7 +329,6 @@ Example Kafka message:
 As you insert topology data, the resources can quickly fill up. To clean up the topology resources, you can run the following commands. However, this will delete ALL topology data, so do not run this on a production environment. Use this only in a development environment.
 
 As a prerequsitiie, you have to expose the elastsic route for the service `iaf-system-elasticsearch-es`, in this example, the secure route is created with name `iaf-system-elasticsearch-es-aiops`
-
 
 ```bash
 CASSANDRA_USER=admin
