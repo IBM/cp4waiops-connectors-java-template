@@ -11,11 +11,11 @@ else
 endif
 
 docker-login:
-	docker login $(REGISTRY) -u "$$DOCKER_USERNAME" -p "$$DOCKER_PASSWORD"
+	podman login $(REGISTRY) -u "$$DOCKER_USERNAME" -p "$$DOCKER_PASSWORD"
 
 docker-build:
 	chmod ug+x container/import-certs.sh
-	docker build -f container/Dockerfile -t $(DOCKER_IMAGE) .
+	podman build -f container/Dockerfile -t $(DOCKER_IMAGE) .
 
 docker-push:
 	docker push $(DOCKER_IMAGE)
