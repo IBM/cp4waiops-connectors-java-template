@@ -120,7 +120,7 @@ IMAGE=YOUR_IMAGE_LOCATION
 docker build -f container/Dockerfile -t $IMAGE .
 docker push $IMAGE
 ```
-Inside both files `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-artifacts/prereqs/kustomization.yaml`. In the `images` section: change `PLACEHOLDER_REGISTRY_ADDRESS` in `newName` to your image registry location. Also inside both files change `newTag` from `latest` to whatever your images tag is.
+Inside both files `/bundle-artifacts/connector/kustomization.yaml` and `/bundle-artifacts/prereqs/kustomization.yaml`. In the `images` section: change `docker-na-public.artifactory.swg-devops.com` in `newName` to your image registry location. Also inside both files change `newTag` from `latest` to whatever your images tag is.
 
 ## Troubleshooting Errors
 See the [Connector Troubleshooting](https://github.com/IBM/cp4waiops-connectors/blob/main/ConnectorTroubleshooting.md) document for resolving common problems.

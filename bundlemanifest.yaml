@@ -7,7 +7,7 @@ spec:
     repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
     branch: main
     authSecret:
-      name: test-utilities-github-token
+      name: test-utilities-github-token-public
     components:
       - name: deployment
         path: /bundle-artifacts/prereqs
@@ -16,7 +16,7 @@ spec:
     repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
     branch: main
     authSecret:
-      name: test-utilities-github-token
+      name: test-utilities-github-token-public
     components:
       - name: connector
         path: /bundle-artifacts/connector
