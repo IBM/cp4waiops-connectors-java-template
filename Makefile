@@ -10,15 +10,15 @@ else
 	SED_EXE := sed
 endif
 
-docker-login:
+podman-login:
 	podman login $(REGISTRY) -u "$$DOCKER_USERNAME" -p "$$DOCKER_PASSWORD"
 
-docker-build:
+podman-build:
 	chmod ug+x container/import-certs.sh
 	podman build -f container/Dockerfile -t $(DOCKER_IMAGE) .
 
-docker-push:
-	docker push $(DOCKER_IMAGE)
+podman-push:
+	podman push $(DOCKER_IMAGE)
 
 .PHONY: format
 format:
