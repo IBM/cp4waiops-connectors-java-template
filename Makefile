@@ -1,4 +1,4 @@
-REGISTRY ?= PLACEHOLDER_REGISTRY_ADDRESS
+REGISTRY ?= docker.io/sghung
 TAG ?= latest
 
 DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
