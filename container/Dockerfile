@@ -12,7 +12,8 @@ COPY --chown=jboss:jboss . /build/connector
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
-FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:23.0.0.6-kernel-java11-openj9-ubi
+FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:23.0.0.9-kernel-java11-openj9-ubi
+# ARG VERBOSE=true
 
 USER 0
 RUN dnf install -y procps-ng && dnf clean all
@@ -23,8 +24,8 @@ COPY --chown=1001:0 container/jvm.options /config/
 
 # Add Liberty server configuration including all necessary features
 COPY --chown=1001:0  container/server.xml /config/
-RUN configure.sh
 
+RUN features.sh
 COPY --from=builder --chown=1001:0  /build/connector/target/java-grpc-connector-template.war /config/apps/
 
 ## The following are examples of security related artifacts you may want to mount to the image at runtime.

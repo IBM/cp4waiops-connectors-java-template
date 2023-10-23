@@ -1,7 +1,7 @@
 REGISTRY ?= PLACEHOLDER_REGISTRY_ADDRESS
 TAG ?= latest
 
-DOCKER_IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
+IMAGE := $(REGISTRY)/cp/aiopsedge/java-grpc-connector-template:$(TAG)
 
 ifeq ($(shell uname -s),Darwin)
 	# gnu-sed, can be installed using homebrew
@@ -10,15 +10,15 @@ else
 	SED_EXE := sed
 endif
 
-docker-login:
-	docker login $(REGISTRY) -u "$$DOCKER_USERNAME" -p "$$DOCKER_PASSWORD"
+podman-login:
+	podman login $(REGISTRY) -u "$$REGISTRY_USERNAME" -p "$$REGISTRY_PASSWORD"
 
-docker-build:
+podman-build:
 	chmod ug+x container/import-certs.sh
-	docker build -f container/Dockerfile -t $(DOCKER_IMAGE) .
+	podman build -f container/Dockerfile -t $(IMAGE) .
 
-docker-push:
-	docker push $(DOCKER_IMAGE)
+podman-push:
+	podman push $(IMAGE)
 
 .PHONY: format
 format:
