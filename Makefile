@@ -20,16 +20,6 @@ podman-build:
 podman-push:
 	podman push $(IMAGE)
 
-docker-login:
-	docker login $(REGISTRY) -u "$$REGISTRY_USERNAME" -p "$$REGISTRY_PASSWORD"
-
-docker-build:
-	chmod ug+x container/import-certs.sh
-	docker build -f container/Dockerfile -t $(IMAGE) .
-
-docker-push:
-	docker push $(IMAGE)	
-
 .PHONY: format
 format:
 	mvn formatter:format
