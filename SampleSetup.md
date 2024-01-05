@@ -104,3 +104,31 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
     ```
 
 1. Commit the changes into GitHub into the `main` branch so the `bundlemanfiest.yaml` will pickup the changes
+1. Next, prepare the OpenShift cluster to pull from the GitHub repository. Ensure you generate a GitHub token that can read from your code repository
+
+    ```bash
+    oc create secret generic test-utilities-github-token --from-literal=username=<GitHub Username> --from-literal=password=<GitHub access token>
+    ```
+
+1. In the OpenShift Console, you can create an image pull secret. Create the name as `ibm-aiops-pull-secret` and put in your Docker information:
+![Secret](image/../images/image-pull-secret.png)
+
+1. Now to deploy the BundleManifest
+    ```bash
+    oc apply -f bundlemanifest.yaml
+    ```
+
+1. Check if the connector was successfully configured (this may take a few seconds):
+    ```bash
+    oc get BundleManifest | grep java-grpc-connector-template
+    java-grpc-connector-template    Configured
+    ```
+
+1. Restart the `connections-ui` pod forcefully, or you can wait 5-10 minutes for it to auto refresh. Don't kill this pod if other people are using CP4AIOps:
+
+    ```bash
+    oc get pods | grep connections-ui
+    aiops-connections-ui-57dc845f75-zls5c                             1/1     Running                  0               40h
+
+    oc delete pod aiops-connections-ui-57dc845f75-zls5c
+    ```
