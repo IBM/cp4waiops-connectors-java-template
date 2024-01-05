@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.ibm.cp4waiops.connectors</groupId>
       <artifactId>connectors-sdk</artifactId>
-      <version>1.5.0</version> <!-- CONNECTOR_SDK_VERSION -->
+      <version>1.7.4</version> <!-- CONNECTOR_SDK_VERSION -->
     </dependency>
     <!-- CloudEvent object and associated builder -->
     <dependency>
@@ -40,7 +40,7 @@
     <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20230618</version>
+        <version>20231013</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

@@ -13,7 +13,7 @@ configurations:
 
 images:
   - name: java-grpc-connector-template
-    newName: PLACEHOLDER_REGISTRY_ADDRESS/cp/aiopsedge/java-grpc-connector-template
+    newName: docker.io/sghung/sample-java-template
     newTag: latest
 
 vars:

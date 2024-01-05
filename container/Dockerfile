@@ -12,7 +12,7 @@ COPY --chown=jboss:jboss . /build/connector
 RUN cd /build/connector && rm -r src/main/liberty && mvn install
 
 ## Final image
-FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:23.0.0.9-kernel-java11-openj9-ubi
+FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:23.0.0.12-kernel-java11-openj9-ubi
 # ARG VERBOSE=true
 
 USER 0

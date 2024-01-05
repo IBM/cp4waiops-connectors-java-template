@@ -4,7 +4,7 @@ metadata:
   name: java-grpc-connector-template
 spec:
   prereqs:
-    repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
+    repo: 'https://github.com/sghung/cp4waiops-connectors-java-template'
     branch: main
     authSecret:
       name: test-utilities-github-token
@@ -13,7 +13,7 @@ spec:
         path: /bundle-artifacts/prereqs
         type: kustomize
   instanced:
-    repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
+    repo: 'https://github.com/sghung/cp4waiops-connectors-java-template'
     branch: main
     authSecret:
       name: test-utilities-github-token
