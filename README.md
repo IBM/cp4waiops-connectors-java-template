@@ -2,6 +2,9 @@
 
 Template for java connectors based on Open Liberty
 
+For a development quickstart with an example, please look at [SampleSetup.md](SampleSetup.md)
+
+
 ## Server Setup <a name="server-setup"></a>
 
 Ensure that the `bundlemanifest.yaml` file has been updated to point at the correct git repository and branch. In an
