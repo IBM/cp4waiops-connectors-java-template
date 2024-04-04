@@ -1,13 +1,11 @@
 package com.ibm.aiops.connectors.template;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import com.ibm.cp4waiops.connectors.sdk.SDKCheck;
 
 import org.eclipse.microprofile.health.Readiness;
 
 @Readiness
-@ApplicationScoped
+@jakarta.enterprise.context.ApplicationScoped
 public class ConnectorTemplateReadinessCheck extends SDKCheck {
     public ConnectorTemplateReadinessCheck() {
         super(ConnectorTemplateReadinessCheck.class.getName(), Type.READINESS);
