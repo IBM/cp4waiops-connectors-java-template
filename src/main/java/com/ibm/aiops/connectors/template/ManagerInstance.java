@@ -1,9 +1,8 @@
 package com.ibm.aiops.connectors.template;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import com.ibm.cp4waiops.connectors.sdk.ConnectorManager;
 import com.ibm.cp4waiops.connectors.sdk.StandardConnectorManager;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ManagerInstance {

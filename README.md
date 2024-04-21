@@ -34,7 +34,7 @@ components:
 First [obtain the sdk](#obtain-the-sdk).
 
 To run the liberty server outside of a docker container, navigate to the top directory and run
-`mvn liberty:run`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
+`./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.3`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
 docker container!
 
@@ -67,7 +67,18 @@ connector-template.id="<UUID>"
 grpc-bridge.id="<UUID>"
 ```
 
-After running `mvn liberty:run`, your connector will get the configuration from the gRPC server.
+After running `./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.3`, your connector will get the configuration from the gRPC server.
+
+You will see a message like:
+```log
+[2024-04-19, 13:13:20:196 EDT] 00000024 FeatureManage A   CWWKF0011I: The defaultServer server is ready to run a smarter planet. The defaultServer server started in 4.606 seconds.
+[2024-04-19, 13:13:20:881 EDT] 00000050 ConnectorCred I   client id and secret provided
+[2024-04-19, 13:13:45:405 EDT] 0000004d KafkaHelper   I   setIsLocalDeployment: false
+[2024-04-19, 13:13:45:405 EDT] 0000004d StandardConne I   Number of consume topics=0
+[2024-04-19, 13:13:50:408 EDT] 0000004d StandardConne I   starting run thread
+[2024-04-19, 13:13:50:577 EDT] 00000054 ConnectorTemp I   cpu usage: -1.0
+[2024-04-19, 13:13:50:607 EDT] 0000004e GRPCCloudEven I   starting produce stream: channel=cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
+```
 
 ### Setting topology images
 In `bundle-artifacts/connector/prereqs/kustomization.yaml`, the images:
@@ -370,3 +381,13 @@ sleep 300
 oc scale deployment aiopsedge-instana-topology-integrator --replicas=1
 oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=1
 ```
+
+## Dependency verification
+For enhanced security, the build has been changed from Maven to Gradle. The [verification-metadata.xml](gradle/verification-metadata.xml) was generated.
+
+Adding new dependencies, you can call:
+```
+./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.3
+```
+
+For depedency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html
