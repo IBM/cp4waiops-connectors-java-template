@@ -31,7 +31,11 @@ components:
 
 ## Development
 
-First [obtain the sdk](#obtain-the-sdk).
+To begin, install gradle.
+Then run
+```bash
+gradle wrapper
+```
 
 To run the liberty server outside of a docker container, navigate to the top directory and run
 `./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.3`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
@@ -390,4 +394,4 @@ Adding new dependencies, you can call:
 ./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.3
 ```
 
-For depedency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html
+For dependency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html
