@@ -67,6 +67,14 @@ def libertyAntVersion = "1.9.14"
 def libertyCommonVersion = "1.8.32"
 
 dependencies {
+    libertyRuntime group: 'io.openliberty', name: 'openliberty-kernel', version: '24.0.0.3'
+    implementation group: 'io.openliberty.features', name: 'com.ibm.websphere.appserver.eeCompatible-7.0', version: '24.0.0.3'
+    libertyFeature 'com.ibm.websphere.appserver.features:restfulWSClient-3.0:24.0.0.3'
+    libertyFeature 'com.ibm.websphere.appserver.features:servlet-5.0:24.0.0.3'
+    libertyFeature 'com.ibm.websphere.appserver.features:mpMetrics-4.0:24.0.0.3'
+    libertyFeature 'com.ibm.websphere.appserver.features:mpConfig-3.0:24.0.0.3'
+    libertyFeature 'com.ibm.websphere.appserver.features:mpHealth-4.0:24.0.0.3'
+
     implementation gradleApi()
     implementation localGroovy()
     implementation ("io.openliberty.tools:liberty-ant-tasks:$libertyAntVersion")
