@@ -222,3 +222,18 @@ Adding new dependencies, you can call:
 ```
 
 For depedency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html
+
+## Building the Image
+Due to a conflict between the dependency verification and the Dockerfile (see https://github.com/gradle/gradle/issues/19228), the workaround is to rely on building via gradle first and the Dockerfile adds the resulting war.
+
+To build:
+```
+gradle wrapper
+gradle build
+make podman-login
+make podman-build
+make podman-push
+
+```
+
+If you hit a security issue, look at the dependency verification
