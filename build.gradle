@@ -43,6 +43,10 @@ configurations {
     provided
 }
 
+tasks.war {
+	archiveFileName.set("java-grpc-connector-template.war")
+}
+
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
