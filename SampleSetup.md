@@ -1,7 +1,7 @@
 # Sample Setup Goal
 A complete end to end scenario to get a custom connector running in CP4AIOps
 
-Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-java-template
+Completed code can be found via: https://github.com/requestbowlers/cp4waiops-connectors-java-template
 
 # Prerequisites
 - Podman (https://podman.io/docs/installation)
@@ -9,18 +9,18 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
 - Docker image repository
 
 # Development Environment Setup
-1. Fork the repo: https://github.com/IBM/cp4waiops-connectors-java-template. For example, the new repo I forked is in: https://github.com/sghung/cp4waiops-connectors-java-template
+1. Fork the repo: https://github.com/IBM/cp4waiops-connectors-java-template. For example, the new repo I forked is in: https://github.com/requestbowlers/cp4waiops-connectors-java-template
 1. Start podman:
     ```bash
     podman machine start
     ```
 1. Login to Docker, for example:
     ```bash
-    docker login docker.io/sghung
+    docker login docker.io/requestbowlers
     ```
 1. Build the image by calling the following command from the root of the project directory. For the tag, use the Docker image location you had previously logged into
     ```
-    podman build -f container/Dockerfile -t docker.io/sghung/sample-java-template:latest .
+    podman build -f container/Dockerfile -t docker.io/requestbowlers/sample-java-template:latest .
     ```
 1. While the image is building (it can take several minutes), the template code requires some modifications for it to run. Begin by updating the GitHub location. Open [bundlemanifest.yaml](bundlemanifest.yaml)
 1. Update the `repo` and `branch` to match your own location. In this example, I will modify the file to be:
@@ -31,7 +31,7 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
     name: java-grpc-connector-template
     spec:
     prereqs:
-        repo: 'https://github.com/sghung/cp4waiops-connectors-java-template'
+        repo: 'https://github.com/requestbowlers/cp4waiops-connectors-java-template'
         branch: main
         authSecret:
         name: test-utilities-github-token
@@ -40,7 +40,7 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
             path: /bundle-artifacts/prereqs
             type: kustomize
     instanced:
-        repo: 'https://github.com/sghung/cp4waiops-connectors-java-template'
+        repo: 'https://github.com/requestbowlers/cp4waiops-connectors-java-template'
         branch: main
         authSecret:
         name: test-utilities-github-token
@@ -57,15 +57,15 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
    As part of the deployment, the image that is being built will be defined here.
 1. If your image was successfully built, you'll see a message like:
    ```bash
-   [2/2] COMMIT docker.io/sghung/sample-java-template:latest
+   [2/2] COMMIT docker.io/requestbowlers/sample-java-template:latest
     --> 9ee0cd654153
-    Successfully tagged docker.io/sghung/sample-java-template:latest
+    Successfully tagged docker.io/requestbowlers/sample-java-template:latest
     9ee0cd654153939823c8e5a896e17c33e4b5c81d827ce44a64c88b52169d10f8
    ```
 
    Next, push the image via the command:
    ```
-   podman push docker.io/sghung/sample-java-template:latest
+   podman push docker.io/requestbowlers/sample-java-template:latest
    ```
 1. Update the image addresses in the Bundlemanifest files. First open [/bundle-artifacts/prereqs/kustomization.yaml](/bundle-artifacts/prereqs/kustomization.yaml). I replace:
    ```yaml
@@ -75,7 +75,7 @@ Completed code can be found via: https://github.com/sghung/cp4waiops-connectors-
    
    with
    ```yaml
-    newName: docker.io/sghung/sample-java-template
+    newName: docker.io/requestbowlers/sample-java-template
     newTag: latest
    ```
 
@@ -148,8 +148,8 @@ mvn install
 
 To build an updated image, you would do (replace with your own image repository):
 ```bash
-podman build -f container/Dockerfile -t docker.io/sghung/sample-java-template:latest .
-podman push docker.io/sghung/sample-java-template:latest
+podman build -f container/Dockerfile -t docker.io/requestbowlers/sample-java-template:latest .
+podman push docker.io/requestbowlers/sample-java-template:latest
 ```
 
 Once the image is pushed to your repository, then you can restart the pod:
