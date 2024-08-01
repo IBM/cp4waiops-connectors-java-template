@@ -84,40 +84,6 @@ You will see a message like:
 [2024-04-19, 13:13:50:607 EDT] 0000004e GRPCCloudEven I   starting produce stream: channel=cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
 ```
 
-### Setting topology images
-In `bundle-artifacts/connector/prereqs/kustomization.yaml`, the images:
-```
-  - name: generic-topology-processor
-    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
-    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
-```
-
-Needs the digest from the install to replace `REPLACE_WITH_DIGEST_FROM_INSTALL`
-
-The digest can be found via:
-```
-oc get ClusterServiceVersion | grep aiopsedge-operator
-aiopsedge-operator.v3.6.2-rc0-202302072143             IBM Watson AIOps Edge                              3.6.2-rc0-202302072143                                            Succeeded
-```
-
-With that ClusterVersion, use describe:
-```
-oc describe ClusterServiceVersion aiopsedge-operator.v3.6.2-rc0-202302072143
-```
-
-Look for this entry:
-```
-olm.relatedImage.generic-topology-processor:
-  cp.icr.io/cp/cp4waiops/generic-topology-processor@sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
-```
-
-Update the `kustomization.yaml` with:
-```
-  - name: generic-topology-processor
-    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
-    digest: sha256:44e6bf5f415594f21f08c43cffffce1746c37c6b99ca703a5ebbf062bddebf1c
-```
-
 ## Setting the authSecret in the `bundlemanifest.yaml`
 1. Create a GitHub Authentication Secret
 1. Navigate to https://GITHUB_URL/settings/tokens
@@ -239,102 +205,6 @@ If your connector has high loads or your cluster has high loads of data, there a
   }
   ```
 
-## Generic Topology Walkthrough
-The generic topology allows you to create relationships between resources for the topology viewer.
-
-
-![Resource management](/images/generic-topology01.png)
-The sample creates the resources
-
-![Topology](/images/generic-topology02.png)
-The resources have relationships
-
-The sample will start up the generic topology processor pod.
-
-To check if the pod is running:
-```bash
-oc get pods | grep generic-topology-processor
-```
-
-To check the pod logs:
-```bash
-oc logs -f $(oc get pod -l connector.aiops.ibm.com/name=generic-topology-processor -o jsonpath='{.items[0].metadata.name}')
-```
-
-
-The generic topology processor gets topology data from Kafka and inserts it into the Elastic database. In the [bundle's prereqs](bundle-artifacts/prereqs) folder, there are yaml files for configuring and deploying the processor:
-
-```yaml
-generictopologyprocessor-deployment.yaml
-generictopologyprocessor-service.yaml
-generictopologyprocessor-serviceaccount.yaml
-generictopologyprocessor-observerrole.yaml
-generictopologyprocessor-observerrolebinding.yaml
-```
-
-When the generic topology processsor is correctly configured, it will be in a running state and there should be no errors in the logs.
-
-Once it is running, the connector will communicate with the processor via Kafka. The topic is `cp4waiops-cartridge.connector-generic.svc_topology.connector_report`.
-
-- This topic has its write permissions set in the [connector schema](bundle-artifacts/prereqs/connectorschema.yaml) 
-- This topic is defined in the [topics file](bundle-artifacts/prereqs/topics.yaml) 
-- This topic is set as one that messages are produced to in the `ConnectorTemplate.java`, so the gRPC server knows the communication is on that topic
-
-### Kafka Message Format
-Example Kafka message:
-```json
-{
-  "nodes": [
-    {
-      "name": "Dog Owner",
-      "entityTypes": [
-        "owner",
-        "human"
-      ],
-      "id": "id1",
-      "properties": {
-        "prop2": "value2",
-        "prop1": "value1"
-      },
-      "tags": [
-        "Sample Topology Data"
-      ]
-    },
-    {
-      "name": "Dog",
-      "entityTypes": [
-        "pet"
-      ],
-      "id": "id2",
-      "properties": {
-        "prop2": "value2",
-        "prop1": "value1"
-      },
-      "tags": [
-        "Sample Topology Data"
-      ]
-    }
-  ],
-  "edges": [
-    {
-      "destination": "id2",
-      "source": "id1",
-      "properties": {
-        "prop2": "value2",
-        "prop1": "value1"
-      },
-      "relation": "attachedTo"
-    }
-  ]
-}
-```
-
-- Each node in `nodes` will show up as a resource
-- The `edges` defines the relationships between the nodes
-- The `id` is the unique identifier and is later referenced for the edges
-- `entityTypes` describes the type of data. There are built in types defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-entity-types) that will display an icon, otherwise a generic icon will be used
-- The `relation` in `edges` are defined in this [document](https://www.ibm.com/docs/en/cloud-paks/cloud-pak-watson-aiops/3.3.2?topic=reference-edge-types). If the type is missing, an error will be thrown in the generic topology processor logs
-
 ### Maintenance
 - When Liberty updates a supported version, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile)
 - When Maven updates, the Dockerfile needs to be updated [container/Dockerfile](container/Dockerfile) needs to have the binary updated
@@ -343,55 +213,12 @@ Example Kafka message:
 - Only one generic processor pod can be run, as a result only one connector type should use this generic processsor to ensure only one pod is run at a time
 - All the data and relationships have to be sent in a single Kafka message. As a result, there are 1 MB size limitations on the Kafka messages. Paging may be implemented in the future
 
-### Cleaning Up the Topology (WARNING: Deletes All Topology Data, Use In Dev Environment Only)
-As you insert topology data, the resources can quickly fill up. To clean up the topology resources, you can run the following commands. However, this will delete ALL topology data, so do not run this on a production environment. Use this only in a development environment.
-
-As a prerequsitiie, you have to expose the elastsic route for the service `iaf-system-elasticsearch-es`, in this example, the secure route is created with name `iaf-system-elasticsearch-es-aiops`
-
-```bash
-CASSANDRA_USER=admin
-CASSANDRA_PASS=`oc get secret aiops-topology-cassandra-auth-secret -o jsonpath='{.data.password}' | base64 -d`
-
-ELASTIC_USER=elasticsearch-admin
-ELASTIC_PASS=`oc get secret ibm-cp-watson-aiops-elastic-admin-secret -o jsonpath='{.data.password}' | base64 -d`
-
-ELASTIC_AUTH=`echo -n $ELASTIC_USER:$ELASTIC_PASS | base64 -w 0`
-
-oc scale deployment aiops-topology-layout --replicas=0
-oc scale deployment aiops-topology-merge --replicas=0
-oc scale deployment aiops-topology-search --replicas=0
-oc scale deployment aiops-topology-status --replicas=0
-oc scale deployment aiops-topology-topology --replicas=0
-oc scale deployment aiops-topology-observer-service --replicas=0
-oc scale deployment aiopsedge-instana-topology-integrator --replicas=0
-oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=0
-sleep 30
-curl -k  --request DELETE 'https://iaf-system-elasticsearch-es-aiops.apps.beta.cp.fyre.ibm.com/aiops-searchservice_v10' \
---header 'Authorization: Basic '$ELASTIC_AUTH
-
-oc exec -ti aiops-topology-cassandra-0 -- bash -c 'cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e "DROP KEYSPACE janusgraph;"'
-sleep 2
-oc exec -ti aiops-topology-cassandra-0 -- bash -c 'cqlsh --ssl -u $CASSANDRA_USER -p $CASSANDRA_PASS -e "SELECT * FROM system_schema.keyspaces;"'
-
-oc scale deployment aiops-topology-layout --replicas=1
-oc scale deployment aiops-topology-merge --replicas=1
-oc scale deployment aiops-topology-search --replicas=1
-oc scale deployment aiops-topology-status --replicas=1
-oc scale deployment aiops-topology-topology --replicas=1
-oc scale deployment aiops-topology-observer-service --replicas=1
-
-sleep 300
-
-oc scale deployment aiopsedge-instana-topology-integrator --replicas=1
-oc scale deployment `oc get deployment | grep ibm-grpc-instana | awk '{print $1;}'` --replicas=1
-```
-
 ## Dependency verification
 For enhanced security, the build has been changed from Maven to Gradle. The [verification-metadata.xml](gradle/verification-metadata.xml) was generated.
 
 Adding new dependencies, you can call:
 ```
-./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.3
+./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.3 --no-configuration-cache
 ```
 
 For depedency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html

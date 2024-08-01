@@ -1,18 +1,21 @@
-## TODO: Add license
-
 ## Build application
-FROM registry.access.redhat.com/ubi8/openjdk-11:latest as builder
-WORKDIR /build
-
-# Download and cache dependencies beforehand
-COPY --chown=jboss:jboss pom.xml /build/connector/
-RUN cd /build/connector && mvn dependency:go-offline -B
-
-COPY --chown=jboss:jboss . /build/connector
-RUN cd /build/connector && rm -r src/main/liberty && mvn install
+# Note: currently the gradle verification is failing due to these test cases, The workaround
+# in the local case is to build the gradle project and then copy the war, instead of having
+# the dockerfile build the war
+# Reference: https://github.com/gradle/gradle/issues/19228
+# 
+# > Dependency verification failed for configuration ':classpath'
+# 2 artifacts failed verification:
+#    - junit-bom-5.9.2.module (org.junit:junit-bom:5.9.2) from repository MavenRepo
+#    - junit-bom-5.9.3.module (org.junit:junit-bom:5.9.3) from repository MavenRepo
+# FROM gradle:7.6-jdk-focal as builder
+# WORKDIR /build
+# 
+# COPY . /build/connector
+# RUN cd /build/connector && gradle build
 
 ## Final image
-FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:24.0.0.3-kernel-java11-openj9-ubi
+FROM --platform=linux/arm64 icr.io/appcafe/websphere-liberty:24.0.0.3-kernel-java11-openj9-ubi
 # ARG VERBOSE=true
 
 USER 0
@@ -26,7 +29,7 @@ COPY --chown=1001:0 container/jvm.options /config/
 COPY --chown=1001:0  container/server.xml /config/
 
 RUN features.sh
-COPY --from=builder --chown=1001:0  /build/connector/target/java-grpc-connector-template.war /config/apps/
+COPY --chown=1001:0  build/libs/*.war /config/apps/
 
 ## The following are examples of security related artifacts you may want to mount to the image at runtime.
 # /etc/x509/certs/tls.crt
