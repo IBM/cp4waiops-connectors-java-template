@@ -25,7 +25,7 @@ components:
     kustomization:
       images:
         - name: java-grpc-connector-template
-          newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/cp/aiopsedge/java-grpc-connector-template
+          newName: hyc-cp4mcm-team-docker-local.artifactory.swg-devops.com/aiopsedge/java-grpc-connector-template
           newTag: sdk-updates
 ```
 

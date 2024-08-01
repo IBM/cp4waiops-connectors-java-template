@@ -69,7 +69,7 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
    ```
 1. Update the image addresses in the Bundlemanifest files. First open [/bundle-artifacts/prereqs/kustomization.yaml](/bundle-artifacts/prereqs/kustomization.yaml). I replace:
    ```yaml
-   newName: PLACEHOLDER_REGISTRY_ADDRESS/cp/aiopsedge/java-grpc-connector-template
+   newName: PLACEHOLDER_REGISTRY_ADDRESS/aiopsedge/java-grpc-connector-template
    newTag: latest
    ```
    
@@ -81,7 +81,7 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
 
    If your tag is not `latest`, update `newTag` as needed
 
-1. Another image that needs to be updated is the generic topology image. To find this image, login with the OpenShift CLI. `cp.icr.io/cp/cp4waiops/generic-topology-processor` needs the proper tag from the install. I get that tag or digest via the call:
+1. Another image that needs to be updated is the generic topology image. To find this image, login with the OpenShift CLI. `cp.icr.io/cp4waiops/generic-topology-processor` needs the proper tag from the install. I get that tag or digest via the call:
 
     ```bash
     oc describe ClusterServiceVersion | grep generic-topology-processor 
@@ -91,7 +91,7 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
 
     ```yaml
     - name: generic-topology-processor
-    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
+    newName: cp.icr.io/cp4waiops/generic-topology-processor
     digest: REPLACE_WITH_DIGEST_FROM_INSTALL
     ```
 
@@ -99,7 +99,7 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
 
     ```yaml
     - name: generic-topology-processor
-    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
+    newName: cp.icr.io/cp4waiops/generic-topology-processor
     newTag: v4.1.1-20230716.2205-62247c872
     ```
 

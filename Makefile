@@ -1,7 +1,7 @@
 REGISTRY ?= requestbowlers
 TAG ?= latest
 
-IMAGE := $(REGISTRY)/cp/java-grpc-connector-template:$(TAG)
+IMAGE := $(REGISTRY)/java-grpc-connector-template:$(TAG)
 
 ifeq ($(shell uname -s),Darwin)
 	# gnu-sed, can be installed using homebrew
