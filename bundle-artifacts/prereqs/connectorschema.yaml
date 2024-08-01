@@ -9,28 +9,10 @@ spec:
   components:
   - apiType: AsyncAPI
     name: connector
-  - apiType: AsyncAPI
-    name: observer-orchestrator
-    controllerConfig:
-      - name: servicename
-        value: generic-topology-processor
-      - name: serviceport
-        value: '9166'
-      - name: servicepath
-        value: '/1.0/generic-observer/jobs'
-      - name: jobpostpath
-        value: '/listen'
-      - name: mapping
-        value: '{ "parameters":{ "provider":"unique-provider"}, "schedule": {}}'
-      - name: neverupdate
-        value: "true"
   documentation: https://github.ibm.com/quicksilver/cp4waiops-grpc-templates/blob/master/open-liberty/README.md
   permissions:
     channels:
       - name: cp4waiops-cartridge.analyticsorchestrator.metrics.itsm.raw
-        operations:
-          - write
-      - name: cp4waiops-cartridge.connector-generic.generic_topology.connector_report
         operations:
           - write
       - name: cp4waiops-cartridge.lifecycle.input.events
@@ -89,11 +71,7 @@ spec:
       numCPUWorkloadThreads:
         type: integer
         description: Number of threads to use for cpu intensive task
-        default: 1
-      enableTopologySampleGeneration:
-        type: boolean
-        description: Enable generation of sample topology data
-        default: false        
+        default: 1      
     type: object
   uiSchema:
     type: java-grpc-connector-template
@@ -235,15 +213,6 @@ spec:
                       apiMapping: connection_config.historicEndDate
                 - id: true
                   rows:
-    - id: enableTopologySampleGeneration
-      element: input
-      type: toggle
-      defaultToggled: false
-      label: "Enable generic topology sample generation"
-      labelOff: "{{common.Off}}"
-      labelOn: "{{common.On}}"
-      apiMapping: connection_config.enableTopologySampleGeneration
-      formStep: addConnection
     - id: numCPUWorkloadThreads
       element: input
       type: number

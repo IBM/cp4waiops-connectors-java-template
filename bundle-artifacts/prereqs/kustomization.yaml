@@ -4,20 +4,11 @@ kind: Kustomization
 resources:
   - connectorschema.yaml
   - microedgeconfiguration.yaml
-  - generictopologyprocessor-deployment.yaml
-  - generictopologyprocessor-service.yaml
-  - generictopologyprocessor-serviceaccount.yaml
-  - generictopologyprocessor-observerrole.yaml
-  - generictopologyprocessor-observerrolebinding.yaml
-  - topics.yaml
 
 configurations:
   - custom-images.yaml
 
 images:
   - name: java-grpc-connector-template
-    newName: PLACEHOLDER_REGISTRY_ADDRESS/cp/aiopsedge/java-grpc-connector-template
+    newName: PLACEHOLDER_REGISTRY_ADDRESS/java-grpc-connector-template
     newTag: latest
-  - name: generic-topology-processor
-    newName: cp.icr.io/cp/cp4waiops/generic-topology-processor
-    digest: REPLACE_WITH_DIGEST_FROM_INSTALL
