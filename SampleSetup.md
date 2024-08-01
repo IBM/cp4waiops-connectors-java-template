@@ -67,7 +67,7 @@ A complete end to end scenario to get a custom connector running in CP4AIOps
    ```
 1. Update the image addresses in the Bundlemanifest files. First open [/bundle-artifacts/prereqs/kustomization.yaml](/bundle-artifacts/prereqs/kustomization.yaml). I replace:
    ```yaml
-   newName: PLACEHOLDER_REGISTRY_ADDRESS/aiopsedge/java-grpc-connector-template
+   newName: requestbowlers/aiopsedge/java-grpc-connector-template
    newTag: latest
    ```
    

@@ -1,4 +1,4 @@
-REGISTRY ?= PLACEHOLDER_REGISTRY_ADDRESS
+REGISTRY ?= requestbowlers
 TAG ?= latest
 
 IMAGE := $(REGISTRY)/java-grpc-connector-template:$(TAG)
