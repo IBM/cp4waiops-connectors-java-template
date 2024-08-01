@@ -1,4 +1,4 @@
-REGISTRY ?= docker.io/requestbowlers
+REGISTRY ?= requestbowlers
 TAG ?= latest
 
 IMAGE := $(REGISTRY)/cp/java-grpc-connector-template:$(TAG)

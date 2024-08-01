@@ -16,11 +16,11 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
     ```
 1. Login to Docker, for example:
     ```bash
-    docker login docker.io/requestbowlers
+    docker login requestbowlers
     ```
 1. Build the image by calling the following command from the root of the project directory. For the tag, use the Docker image location you had previously logged into
     ```
-    podman build -f container/Dockerfile -t docker.io/requestbowlers/sample-java-template:latest .
+    podman build -f container/Dockerfile -t requestbowlers/sample-java-template:latest .
     ```
 1. While the image is building (it can take several minutes), the template code requires some modifications for it to run. Begin by updating the GitHub location. Open [bundlemanifest.yaml](bundlemanifest.yaml)
 1. Update the `repo` and `branch` to match your own location. In this example, I will modify the file to be:
@@ -57,15 +57,15 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
    As part of the deployment, the image that is being built will be defined here.
 1. If your image was successfully built, you'll see a message like:
    ```bash
-   [2/2] COMMIT docker.io/requestbowlers/sample-java-template:latest
+   [2/2] COMMIT requestbowlers/sample-java-template:latest
     --> 9ee0cd654153
-    Successfully tagged docker.io/requestbowlers/sample-java-template:latest
+    Successfully tagged requestbowlers/sample-java-template:latest
     9ee0cd654153939823c8e5a896e17c33e4b5c81d827ce44a64c88b52169d10f8
    ```
 
    Next, push the image via the command:
    ```
-   podman push docker.io/requestbowlers/sample-java-template:latest
+   podman push requestbowlers/sample-java-template:latest
    ```
 1. Update the image addresses in the Bundlemanifest files. First open [/bundle-artifacts/prereqs/kustomization.yaml](/bundle-artifacts/prereqs/kustomization.yaml). I replace:
    ```yaml
@@ -75,7 +75,7 @@ Completed code can be found via: https://github.com/requestbowlers/cp4waiops-con
    
    with
    ```yaml
-    newName: docker.io/requestbowlers/sample-java-template
+    newName: requestbowlers/sample-java-template
     newTag: latest
    ```
 
@@ -148,8 +148,8 @@ mvn install
 
 To build an updated image, you would do (replace with your own image repository):
 ```bash
-podman build -f container/Dockerfile -t docker.io/requestbowlers/sample-java-template:latest .
-podman push docker.io/requestbowlers/sample-java-template:latest
+podman build -f container/Dockerfile -t requestbowlers/sample-java-template:latest .
+podman push requestbowlers/sample-java-template:latest
 ```
 
 Once the image is pushed to your repository, then you can restart the pod:
