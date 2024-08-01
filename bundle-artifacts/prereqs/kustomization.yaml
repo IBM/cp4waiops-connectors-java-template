@@ -10,5 +10,5 @@ configurations:
 
 images:
   - name: java-grpc-connector-template
-    newName: requestbowlers/java-grpc-connector-template
+    newName: sghung/java-grpc-connector-template
     newTag: latest
