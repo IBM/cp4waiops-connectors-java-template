@@ -1,4 +1,4 @@
-REGISTRY ?= sghung
+REGISTRY ?= requestbowlers
 TAG ?= latest
 
 IMAGE := $(REGISTRY)/java-grpc-connector-template:$(TAG)
