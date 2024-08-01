@@ -5,7 +5,7 @@ metadata:
 spec:
   prereqs:
     repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
-    branch: verifyMacBuild
+    branch: main
     authSecret:
       name: test-utilities-github-token
     components:
@@ -14,7 +14,7 @@ spec:
         type: kustomize
   instanced:
     repo: 'https://github.com/IBM/cp4waiops-connectors-java-template'
-    branch: verifyMacBuild
+    branch: main
     authSecret:
       name: test-utilities-github-token
     components:
