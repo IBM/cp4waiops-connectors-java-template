@@ -15,7 +15,7 @@
 # RUN cd /build/connector && gradle build
 
 ## Final image
-FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:24.0.0.3-kernel-java11-openj9-ubi
+FROM --platform=linux/amd64 icr.io/appcafe/websphere-liberty:24.0.0.6-kernel-java11-openj9-ubi
 # ARG VERBOSE=true
 
 USER 0

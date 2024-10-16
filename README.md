@@ -38,7 +38,7 @@ gradle wrapper
 ```
 
 To run the liberty server outside of a docker container, navigate to the top directory and run
-`./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.3`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
+`./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.6`. Settings can be provided in the `src/main/liberty/config/bootstrap.properties` or
 `src/main/liberty/config/server.xml` file. Be aware that values set there will not be used in the
 docker container!
 
@@ -71,7 +71,7 @@ connector-template.id="<UUID>"
 grpc-bridge.id="<UUID>"
 ```
 
-After running `./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.3`, your connector will get the configuration from the gRPC server.
+After running `./gradlew libertyRun -Druntime=wlp -DruntimeVersion=24.0.0.6`, your connector will get the configuration from the gRPC server.
 
 You will see a message like:
 ```log
@@ -218,7 +218,7 @@ For enhanced security, the build has been changed from Maven to Gradle. The [ver
 
 Adding new dependencies, you can call:
 ```
-./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.3 --no-configuration-cache
+./gradlew --write-verification-metadata sha256 -Druntime=wlp -DruntimeVersion=24.0.0.6 --no-configuration-cache
 ```
 
 For depedency verification failures, please look at the reference: https://docs.gradle.org/current/userguide/dependency_verification.html
